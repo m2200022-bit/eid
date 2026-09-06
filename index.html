@@ -767,6 +767,33 @@
   .ms-label{font-size:11.5px;}
 
   /* ══════════ أحجام الحقول بالمقاسات المطلوبة ══════════ */
+  /* صفوف نافذة العرض فقط */
+  .ro-row{display:flex; align-items:flex-start; gap:9px; padding:9px 0;
+    border-bottom:1px solid var(--border-light);}
+  .ro-row:last-child{border-bottom:none;}
+  .ro-ic{color:var(--gold); flex:none; margin-top:1px;}
+  .ro-k{flex:0 0 130px; font-size:12px; color:var(--muted-text);}
+  .ro-v{flex:1; min-width:0; font-size:13px; font-weight:600; color:var(--ink); word-break:break-word;}
+
+  /* ══════════ عناوين الأقسام: عنوان كبير ووصف تحته ══════════ */
+  .glow-card .form-table thead th{
+    background:transparent !important; border:none !important;
+    padding:0 0 13px !important; text-align:right;}
+  .glow-card .form-table thead th .th-bar,
+  .glow-card .form-table thead th > div{
+    display:flex; align-items:flex-start; justify-content:space-between; gap:14px; flex-wrap:wrap;}
+  .sec-title{display:block; font-family:var(--font-head);
+    font-size:17px; font-weight:700; color:var(--heading-text); line-height:1.35;}
+  .sec-title i{display:block; margin-top:3px; font-style:normal;
+    font-size:11.5px; font-weight:400; color:var(--muted-text); line-height:1.5;}
+  .glow-card{padding:16px !important; border-radius:12px !important; margin-bottom:10px;
+    background:#fff !important; border:1px solid var(--border-c) !important;
+    box-shadow:0 2px 5px rgba(18,36,43,.06) !important;}
+  .glow-card:hover{transform:none !important;}
+  /* أزرار الإضافة المصغّرة بجوار العنوان */
+  .glow-card .plus-btn.mini{align-self:center;}
+  .glow-card .th-actions{align-self:center;}
+
   /* ══════════ التسمية فوق المربع والمدخل يملؤه ══════════ */
   .fbox{height:auto; min-height:0; padding:0 !important; border:none !important;
     background:transparent !important; box-shadow:none !important;
@@ -809,15 +836,7 @@
   .fgrid.tight > .fbox{margin-block:-0.5px;}
   .glow-card .form-table.compact tbody tr + tr td{padding-top:0 !important;}
   .glow-card .form-table tbody tr td{border:none !important;}
-  /* عروض متناسقة: وحدة أساس 210px ومضاعفاتها */
-  .fbox.w-sel{width:auto !important; flex:0 0 auto; min-width:150px; max-width:210px; padding-inline:4px !important;}
-  .fbox.w-title{width:340px !important; flex:0 0 340px; max-width:100%; padding-inline:4px !important;}
-  #f_periodWrap.fbox{width:175px !important; flex:0 0 175px; padding-inline:4px !important;}
-  .fbox.w-date{width:150px !important; flex:0 0 150px; padding-inline:4px !important;}
-  .fbox.w-time{width:135px !important; flex:0 0 135px; padding-inline:4px !important;}
-  .fbox.w-num4{width:120px !important; flex:0 0 120px; padding-inline:4px !important;}
-  .fbox.w-days{width:95px !important; flex:0 0 95px; padding-inline:4px !important;}
-  .fbox.w-num5{width:105px !important; flex:0 0 105px; padding-inline:4px !important;}
+  /* العروض معرّفة في نهاية الملف (نِسَب كقسم بيانات التنفيذ) */
   /* الصف يملأ العرض بالتساوي بلا فراغ متبقٍ */
   .fgrid.tight{align-items:stretch;}
   /* التاريخ والوقت: المدخلات تبدأ من أقصى اليمين */
@@ -1783,6 +1802,132 @@
     .table-toolbar{gap:6px;}
     .field label{font-size:12px;}
   }
+  /* ══════════════════════════════════════════════════════════════
+     أنماط نموذج طلب الفعالية — في النهاية لتتجاوز القواعد الأقدم
+     ══════════════════════════════════════════════════════════════ */
+  /* ══════════ نمط الحقول المرجعي: تسمية خارج المربع ومدخل فاتح ══════════ */
+  .glow-card .fbox > label,
+  .glow-card .form-table tbody td > label{
+    display:block !important; margin:0 0 5px !important;
+    font-size:12px !important; font-weight:600 !important;
+    color:var(--heading-text) !important; background:transparent !important;}
+  .glow-card .fbox > label .lu{width:13px; height:13px;}
+  .glow-card .fbox input, .glow-card .fbox select, .glow-card .fbox textarea,
+  .glow-card .form-table tbody td input, .glow-card .form-table tbody td select,
+  .glow-card .form-table tbody td textarea{
+    width:100% !important; box-sizing:border-box;
+    height:38px !important; min-height:38px !important; line-height:38px !important;
+    padding:0 11px !important;
+    background:#FBFAF8 !important; border:1px solid #E6E3DC !important;
+    border-radius:9px !important;
+    font-size:13px !important; font-weight:500 !important; color:var(--ink) !important;
+    box-shadow:none !important;}
+  .glow-card textarea{height:auto !important; min-height:58px !important;
+    line-height:1.55 !important; padding:9px 11px !important;}
+  .glow-card input::placeholder, .glow-card textarea::placeholder{color:#A9ABA6; font-weight:400;}
+  .glow-card input:hover, .glow-card select:hover, .glow-card textarea:hover{border-color:#D4D0C7 !important;}
+  .glow-card input:focus, .glow-card select:focus, .glow-card textarea:focus{
+    background:#fff !important; border-color:var(--gold) !important;
+    box-shadow:0 0 0 3px rgba(46,112,105,.10) !important;}
+  .glow-card .fbox{padding:0 !important; border:none !important; background:transparent !important;
+    box-shadow:none !important;}
+  .glow-card .fbox:focus-within{box-shadow:none !important;}
+  .glow-card .dwrap, .glow-card .twrap{height:38px;}
+  .glow-card .dview, .glow-card .tview{height:38px; line-height:38px; font-weight:500 !important;
+    font-size:13px !important; padding:0 11px !important; padding-inline-end:26px !important;}
+  /* شبكة مرنة: كل مربع بعرض محتواه دون زيادة */
+  .glow-card .fgrid, .glow-card .fgrid.tight{
+    display:flex !important; flex-wrap:wrap; align-items:flex-end;
+    gap:10px 12px !important; margin-bottom:11px !important;}
+  .glow-card .fgrid.tight > .fbox, .glow-card .fgrid > .fbox{flex:0 0 auto; max-width:100%;}
+  /* عروض محسوبة على المدخلات الفعلية */
+  /* كل حقول النموذج خلايا جدول بنِسَب — كقسم بيانات التنفيذ */
+  .glow-card .form-table tbody td[hidden]{display:none !important;}
+  .glow-card .form-table.compact tbody td{padding:0 8px 12px 0 !important; vertical-align:top; width:auto;}
+  .glow-card .form-table.compact tbody td:last-child{padding-inline-end:0 !important;}
+  @media (max-width:820px){
+    .glow-card .form-table.compact tbody,
+    .glow-card .form-table.compact tbody tr{display:block; width:100%;}
+    .glow-card .form-table.compact tbody td{display:block; width:100% !important; padding-inline:0 !important;}
+  }
+  /* حقول قسم التنفيذ بعرض محتواها */
+  .glow-card .form-table tbody td{width:1%; white-space:nowrap; padding:0 8px 14px 0 !important;}
+  .glow-card .form-table tbody td select{min-width:180px;}
+  @media (max-width:760px){
+    .glow-card .fgrid, .glow-card .fgrid.tight{gap:12px !important;}
+    .glow-card .fbox, .glow-card .fbox.w-sel, .glow-card .fbox.w-title,
+    .glow-card #f_periodWrap.fbox, .glow-card .fbox.w-date, .glow-card .fbox.w-time,
+    .glow-card .fbox.w-days, .glow-card .fbox.w-num4, .glow-card .fbox.w-num5{
+      width:100% !important; flex:0 0 100% !important;}
+  }
+  @media (max-width:760px){
+    .glow-card .fgrid, .glow-card .fgrid.tight{grid-template-columns:1fr !important; gap:14px !important;}
+  }
+  /* ══════════ قوائم مفتوحة دائمًا ══════════ */
+  .ms-wrap.always-open{border:none !important; background:transparent !important; box-shadow:none !important;}
+  .ms-head.static{cursor:default; background:transparent !important; padding:0 0 9px !important;
+    font-size:13px !important; font-weight:600 !important; color:var(--heading-text) !important;
+    border-bottom:1px solid var(--border-light);}
+  .ms-wrap.always-open .ms-body{max-height:none !important; max-width:none !important;
+    overflow:visible !important; opacity:1 !important; padding:11px 0 0 !important;}
+  .acc-card.sub .acc-head.static{cursor:default; padding:9px 0 7px !important;
+    background:transparent !important; font-size:12.5px; font-weight:700; color:var(--gold-d);}
+  .acc-card.sub.open .acc-body{max-height:none !important; max-width:none !important;
+    overflow:visible !important; opacity:1 !important; background:transparent !important;
+    padding:0 0 9px !important;}
+  .acc-card.sub{background:transparent !important; border-top:1px solid var(--border-light) !important;}
+  .acc-card.sub:first-child{border-top:none !important;}
+
+  /* ══════════ إحكام إضافي: قوائم وحقول قسم التنفيذ ══════════ */
+  .glow-card .ms-head.static{padding:0 0 7px !important; font-size:12px !important;}
+  .glow-card .ms-wrap.always-open .ms-body{padding:8px 0 0 !important;}
+  .glow-card .acc-head.static{padding:7px 0 5px !important; font-size:12px !important;}
+  .glow-card .acc-card.sub.open .acc-body{padding:0 0 7px !important;}
+  .glow-card .opt-row{padding:4px 8px; font-size:12px; gap:6px;}
+  .glow-card .opt-box{width:15px; height:15px;}
+  .glow-card .opt-tag{padding:1px 6px; font-size:9.5px;}
+  /* حقول قسم التنفيذ بعرض موحّد ومضغوط */
+  .glow-card .form-table tbody td{padding:0 8px 11px 0 !important;}
+  .glow-card .form-table tbody td select{min-width:0;}
+  .glow-card .form-table tbody td:has(#f_school) select{min-width:230px;}
+  .glow-card .form-table tbody td:has(#f_supervisor) select{min-width:200px;}
+  .glow-card .form-table tbody td:has(#f_stage) select{min-width:140px;}
+  .glow-card .supervisor-info{padding:4px 8px; font-size:11px; margin-top:2px;}
+  .glow-card .th-search{height:32px !important; min-height:32px !important; font-size:12px !important;}
+  .glow-card .plus-btn.mini{height:30px; padding:0 10px; font-size:11.5px;}
+  /* أزرار الحفظ أنحف */
+  .save-bar .btn{min-height:38px !important; font-size:12px !important;}
+
+  /* ══════════ أكثر العناوين طلبًا — مركز التشغيل ══════════ */
+  .tt-list{display:flex; flex-direction:column; gap:8px;}
+  .tt-row{all:unset; cursor:pointer; display:flex; align-items:center; gap:12px; width:100%;
+    box-sizing:border-box; padding:11px 13px; border-radius:11px;
+    background:var(--surface,#fff); border:1px solid var(--border-c);
+    transition:border-color .2s var(--ease-standard), transform .2s, box-shadow .2s;}
+  .tt-row:hover{border-color:var(--gold); transform:translateY(-2px);
+    box-shadow:0 4px 14px rgba(18,36,43,.07);}
+  .tt-rank{flex:none; width:26px; height:26px; border-radius:50%; display:grid; place-items:center;
+    background:var(--gold-l); color:var(--gold-d); font-size:12px; font-weight:800;
+    font-family:'Space Mono',monospace;}
+  .tt-row:nth-child(1) .tt-rank{background:var(--gold); color:#fff;}
+  .tt-main{flex:1; min-width:0; display:flex; flex-direction:column; gap:5px;}
+  .tt-title{font-size:13.5px; font-weight:700; color:var(--heading-text);
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis; text-align:right;}
+  .tt-meta{display:flex; flex-wrap:wrap; gap:5px;}
+  .tt-meta em{font-style:normal; font-size:10.5px; color:var(--muted-text);
+    background:var(--sand-100); border-radius:999px; padding:1px 8px; white-space:nowrap;}
+  .tt-bar{display:block; height:6px; border-radius:999px; background:var(--sand-200); overflow:hidden;}
+  .tt-bar > i{display:block; height:100%; border-radius:999px; background:var(--gold);}
+  .tt-num{flex:none; display:flex; flex-direction:column; align-items:center; min-width:44px;
+    font-family:'Space Mono',monospace; font-size:19px; font-weight:800; color:var(--heading-text);
+    line-height:1.1;}
+  .tt-num b{font-family:var(--font-body); font-size:10px; font-weight:500; color:var(--muted-text);}
+  @media (max-width:600px){
+    .tt-row{padding:9px 10px; gap:9px;}
+    .tt-title{font-size:12.5px;}
+    .tt-meta em:nth-child(n+4){display:none;}
+  }
+
 </style>
 </head>
 <body>
@@ -1927,6 +2072,7 @@ async function loadState(){
     const snap = await STATE_DOC().get();
     syncState.ok = true; syncState.lastAt = Date.now();
     if(snap.exists){
+      __docExisted = true;
       const raw = snap.data();
       // البيانات مخزّنة كنص JSON لتفادي قيود Firestore على المصفوفات المتداخلة
       state = raw && raw.json ? JSON.parse(raw.json) : null;
@@ -1971,11 +2117,31 @@ async function loadState(){
   }catch(e){
     console.error('load error', e);
     syncState.ok = false;
-    alert('تعذّر تحميل البيانات من قاعدة البيانات.\n\nالسبب: ' + (e && e.message ? e.message : e) + '\n\nتأكد من إعدادات Firestore وقواعد الأمان.');
+    /* ⚠ لا نكتب بيانات افتراضية فوق قاعدة البيانات عند فشل القراءة —
+       كان هذا يمحو البيانات الحقيقية عند أي انقطاع شبكة أو خطأ صلاحيات. */
+    state = defaultState();
+    __readFailed = true;
+    alert('تعذّر تحميل البيانات من قاعدة البيانات.\n\n'
+      + 'السبب: ' + (e && e.message ? e.message : e) + '\n\n'
+      + '⚠ لن يُحفظ أي تعديل حتى تنجح القراءة، حمايةً لبياناتك.\n'
+      + 'أعد تحميل الصفحة بعد التأكد من الاتصال.');
+    return;
   }
+  /* المستند موجود لكن محتواه غير صالح → لا نكتب فوقه */
+  if(__docExisted){
+    state = defaultState();
+    __readFailed = true;
+    alert('البيانات المخزّنة غير قابلة للقراءة.\n\n'
+      + '⚠ لن يُحفظ أي تعديل حمايةً لما هو مخزّن.\n'
+      + 'تواصل مع المطوّر قبل المتابعة.');
+    return;
+  }
+  /* لا يوجد مستند إطلاقًا → أول تشغيل، ننشئ البيانات الابتدائية */
   state = defaultState();
   await saveState();
 }
+/* أعلام حماية: تمنع الكتابة عند فشل القراءة */
+let __readFailed = false, __docExisted = false;
 const syncState = { ok:false, lastAt:null };
 let saving=false, pendingSave=false;
 /* ══════════════════════════════════════════════════════════════════
@@ -1993,10 +2159,22 @@ function saveState(){
   });
 }
 async function flushSave(){
+  /* ⚠ حماية: لا نكتب إطلاقًا إذا لم تنجح قراءة البيانات */
+  if(__readFailed){
+    toast('⚠️ الحفظ متوقف: لم تُقرأ البيانات بنجاح. أعد تحميل الصفحة.');
+    return;
+  }
   if(saving){ pendingSave=true; return; }
   saving=true;
   try{
-    await STATE_DOC().set({ json: JSON.stringify(state), updatedAt: Date.now() });
+    const payload = JSON.stringify(state);
+    /* نسخة احتياطية محلية قبل كل كتابة — للاسترجاع عند أي خطأ */
+    try{
+      localStorage.setItem('backup_prev', localStorage.getItem('backup_last') || '');
+      localStorage.setItem('backup_last', payload);
+      localStorage.setItem('backup_at', new Date().toISOString());
+    }catch(e){}
+    await STATE_DOC().set({ json: payload, updatedAt: Date.now() });
     syncState.ok = true; syncState.lastAt = Date.now(); renderUserBox();
   }catch(e){
     console.error('save error', e);
@@ -2308,12 +2486,26 @@ function renderGate(root){
   document.getElementById('lg_user').focus();
 }
 function doLogin(){
-  const u = document.getElementById('lg_user').value.trim();
-  const p = document.getElementById('lg_pass').value;
-  const match = state.users.find(x=>x.username===u && x.password===p);
   const eBox = document.getElementById('lg_err');
-  if(!u || !p){ eBox.textContent='يرجى إدخال اسم المستخدم وكلمة المرور'; eBox.style.display='block'; return; }
-  if(!match){ eBox.textContent='اسم المستخدم أو كلمة المرور غير صحيحة'; eBox.style.display='block'; return; }
+  const fail = msg => { if(eBox){ eBox.textContent=msg; eBox.style.display='block'; } };
+  const uEl = document.getElementById('lg_user'), pEl = document.getElementById('lg_pass');
+  if(!uEl || !pEl) return;
+  /* تنظيف المدخلات: مسافات ومحارف اتجاهية قد تلتصق عند النسخ أو التعبئة التلقائية */
+  const clean = v => String(v||'').replace(/[\u200e\u200f\u202a-\u202e\u2066-\u2069]/g,'').trim();
+  const u = clean(uEl.value);
+  const p = clean(pEl.value);
+  if(!u || !p){ fail('يرجى إدخال اسم المستخدم وكلمة المرور'); return; }
+  /* حماية: قائمة المستخدمين قد لا تكون جاهزة بعد */
+  const users = (state && Array.isArray(state.users)) ? state.users : [];
+  if(!users.length){ fail('لم تُحمَّل بيانات المستخدمين بعد — انتظر لحظة ثم أعد المحاولة'); return; }
+  /* اسم المستخدم غير حسّاس لحالة الأحرف، وكلمة المرور مطابقة تامة */
+  const match = users.find(x =>
+    clean(x.username).toLowerCase() === u.toLowerCase() && clean(x.password) === p);
+  if(!match){
+    const userExists = users.some(x => clean(x.username).toLowerCase() === u.toLowerCase());
+    fail(userExists ? 'كلمة المرور غير صحيحة' : 'اسم المستخدم غير موجود');
+    return;
+  }
   try{
     const rem = document.getElementById('lg_remember');
     if(rem && rem.checked) localStorage.setItem('rememberUser', u); else localStorage.removeItem('rememberUser');
@@ -3046,6 +3238,71 @@ function renderOperationsCenter(c){
     </section>`;
   }
 
+  /* أكثر العناوين طلبًا — بدمج المتشابهة */
+  const topT = (function(){
+    const norm = s => String(s||'')
+      .replace(/[\u064B-\u0652\u0670\u0640]/g,'')
+      .replace(/[أإآا]/g,'ا').replace(/[ىي]/g,'ي').replace(/ة/g,'ه').replace(/[ؤئء]/g,'ء')
+      .replace(/[^\u0600-\u06FF0-9a-zA-Z ]/g,' ').replace(/\s+/g,' ').trim().toLowerCase();
+    const stem = w => w.replace(/^(وال|بال|كال|فال|ال|و|ف|ب|ك|ل)/,'')
+      .replace(/(اتها|اتهم|تها|هما|كما|ونها|انها|ات|ون|ين|ان|ها|هم|كم|نا|ية|ي|ه|ا)$/,'');
+    const STOP = new Set(['في','من','علي','عن','الي','مع','و','هذا','هذه','التي','الذي','ما',
+      'برنامج','فعاليه','مبادره','دوره','ورشه','يوم','حول','بين','كل']);
+    const toks = s => [...new Set(norm(s).split(' ').map(stem).filter(w=>w.length>2 && !STOP.has(w)))];
+    const sim = (a,b)=>{ const A=new Set(toks(a)), B=new Set(toks(b));
+      if(!A.size||!B.size) return 0; let i=0; A.forEach(x=>{ if(B.has(x)) i++; });
+      return i/(A.size+B.size-i); };
+    const g = [];
+    orders.forEach(o=>{
+      const t=(o.title||'').trim(); if(!t) return;
+      let x = g.find(y=>sim(y.rep,t) >= 0.55);
+      if(!x){ x={rep:t, n:0, schools:new Set()}; g.push(x); }
+      x.n++; if(o.schoolId) x.schools.add(o.schoolId);
+      if(t.length < x.rep.length) x.rep = t;
+    });
+    /* إثراء كل مجموعة ببياناتها */
+    g.forEach(x=>{
+      const items = orders.filter(o=>{
+        const t=(o.title||'').trim(); return t && sim(x.rep,t) >= 0.55;
+      });
+      x.items = items;
+      const fc = {}, pc = {};
+      items.forEach(o=>{
+        const f = state.fields.find(y=>y.id===o.fieldId);
+        const p = state.programTypes.find(y=>y.id===o.programTypeId);
+        if(f) fc[f.name] = (fc[f.name]||0)+1;
+        if(p) pc[p.name] = (pc[p.name]||0)+1;
+      });
+      x.field = Object.entries(fc).sort((a,b)=>b[1]-a[1])[0];
+      x.path  = Object.entries(pc).sort((a,b)=>b[1]-a[1])[0];
+      x.hours = Math.round(items.reduce((s,o)=>s+computeHours(o.timeFrom,o.timeTo,o.date,o.dateTo),0)*10)/10;
+      x.people= items.reduce((s,o)=>s+(Number(o.participantsCount)||0),0);
+      x.last  = items.map(o=>o.date).filter(Boolean).sort().pop();
+      x.done  = items.filter(o=>o.completionStatus==='تم').length;
+    });
+    return g.sort((a,b)=>b.n-a.n).slice(0,8);
+  })();
+  const maxT = Math.max(...topT.map(x=>x.n), 1);
+  const topTitlesHtml = topT.length ? `
+    <div class="tt-list">${topT.map((x,i)=>`
+      <button type="button" class="tt-row" data-tt="${i}">
+        <span class="tt-rank">${i+1}</span>
+        <span class="tt-main">
+          <span class="tt-title" title="${escapeHtml(x.rep)}">${escapeHtml(x.rep)}</span>
+          <span class="tt-meta">
+            ${x.field?`<em>${escapeHtml(x.field[0])}</em>`:''}
+            ${x.path?`<em>${escapeHtml(x.path[0])}</em>`:''}
+            <em>${x.schools.size} جهة</em>
+            <em>${x.hours} ساعة</em>
+            ${x.people?`<em>${x.people} مستهدف</em>`:''}
+            ${x.last?`<em>آخر تنفيذ ${fmtDate(x.last)}</em>`:''}
+          </span>
+          <span class="tt-bar"><i style="width:${Math.round(x.n/maxT*100)}%"></i></span>
+        </span>
+        <span class="tt-num">${x.n}<b>طلب</b></span>
+      </button>`).join('')}</div>`
+    : `<div class="empty-state" style="padding:18px;">لا توجد بيانات كافية</div>`;
+
   /* أين يتركز العمل؟ — حسب مسار المبادرة */
   const byPath = (state.programTypes||[]).map(p=>({
     name:p.name, count:orders.filter(o=>o.programTypeId===p.id).length
@@ -3122,7 +3379,48 @@ function renderOperationsCenter(c){
           <p class="section-eyebrow">يحتاج انتباهك</p><h3 class="panel-title">تنبيهات التدخل</h3></div></div>
         <div style="margin-top:14px;">${alertsHtml}</div>
       </section>
-    </div>`;
+    </div>
+    <section class="panel fade-up delay-4" style="margin-top:18px;">
+      <div class="panel-heading" style="flex-wrap:wrap;gap:10px;"><div>
+        <p class="section-eyebrow">الأكثر تكرارًا</p>
+        <h3 class="panel-title">أكثر عناوين المبادرات طلبًا</h3>
+        <p class="helper" style="margin:4px 0 0;">
+          ${topT.length ? `${orders.length} فعالية · ${topT.length} عنوان في الصدارة · العناوين المتشابهة مدموجة تلقائيًا` : ''}
+        </p></div>
+        <button class="btn btn-outline" id="opsTopReport" style="min-height:34px;font-size:12px;">
+          ${icon('barChart',14)} التقرير الكامل</button>
+      </div>
+      <div style="margin-top:14px;">${topTitlesHtml}</div>
+    </section>`;
+
+  /* فتح التقرير الكامل */
+  const _tr = document.getElementById('opsTopReport');
+  if(_tr) _tr.onclick = ()=>{ currentPage='reports'; setSubTab('reports','rep'); render();
+    setTimeout(()=>{ const s=document.getElementById('rep_type'); if(s){ s.value='topPrograms'; s.dispatchEvent(new Event('change')); } }, 60); };
+  /* النقر على عنوان يعرض فعالياته */
+  c.querySelectorAll('[data-tt]').forEach(b=>{
+    b.onclick = ()=>{
+      const g = topT[Number(b.dataset.tt)]; if(!g) return;
+      const rows = (g.items||[]).slice().sort((a,b2)=>(b2.date||'').localeCompare(a.date||''));
+      showInfoModal(`${escapeHtml(g.rep)} — ${g.n} ${eventWord(g.n)}`, `
+        <div style="max-height:56vh;overflow:auto;">
+          ${rows.map(o=>{
+            const sc = state.schools.find(x=>x.id===o.schoolId);
+            return `<button type="button" class="activity-row" data-view="${o.id}" style="width:100%;">
+              <span class="request-mark mark-teal">${icon('fileText',15)}</span>
+              <span style="min-width:0;flex:1;text-align:right;">
+                <span class="ar-title">${escapeHtml(o.title)}</span>
+                <span class="ar-sub">${o.serial} · ${sc?escapeHtml(sc.name):'—'} · ${fmtDate(o.date)}</span>
+              </span>${doneBadge(o.completionStatus)}</button>`;
+          }).join('')}
+        </div>`, box=>{
+        box.style.maxWidth='620px';
+        box.querySelectorAll('[data-view]').forEach(x=>{
+          x.onclick=()=>{ closeModal(); setTimeout(()=>viewOrderReadOnly(x.dataset.view), 60); };
+        });
+      });
+    };
+  });
 
   c.querySelectorAll('[data-open]').forEach(b=>{ b.onclick=()=>editOrder(b.dataset.open); });
   c.querySelectorAll('[data-next]').forEach(b=>{ b.onclick=(e)=>{ e.stopPropagation(); opsAdvance(b.dataset.next); }; });
@@ -3782,7 +4080,7 @@ function renderOrderPage(c){
   </div>`;
   /* النقر على يوم يفتح أمر التكليف */
   c.querySelectorAll('.day-chip[data-open]').forEach(b=>{
-    b.onclick = ()=>editOrder(b.dataset.open);
+    b.onclick = ()=>viewOrderReadOnly(b.dataset.open);
   });
   const opt = document.getElementById('ordPageTitle');
   if(opt){
@@ -4363,7 +4661,7 @@ function renderOrderForm(sub){
   <div class="card glow-card">
     <table class="form-table compact"><thead><tr><th colspan="7">
       <div class="th-bar">
-        <span style="color:#fff;">${icon('activity',15)} المبادرة ووقت تنفيذها</span>
+        <span class="sec-title">المبادرة ووقت تنفيذها<i>التفاصيل الأساسية المطلوبة لاعتماد الفعالية</i></span>
         <span class="th-actions">
           <span style="display:inline-flex;align-items:center;gap:6px;background:#fff;color:#8A1538;border-radius:6px;padding:2px 10px;font-size:12px;font-weight:700;">
             أمر التكليف: <b style="font-size:14px;">${editing? editing.serial : 'تلقائي عند الحفظ'}</b>
@@ -4374,63 +4672,57 @@ function renderOrderForm(sub){
       </div>
     </th></tr></thead><tbody>
       <tr>
-        <td colspan="7">
-          <div class="fgrid tight">
-            <div class="fbox w-sel" title="مجال المبادرة"><label>${icon('layers',13)} المجال</label>
-              <select id="f_field" required>${state.fields.map(f=>`<option value="${f.id}" ${editing&&editing.fieldId===f.id?'selected':''}>${escapeHtml(f.name)}</option>`).join('')}</select>
-            </div>
-            <div class="fbox w-sel" title="مسار المبادرة"><label>${icon('activity',13)} المسار</label>
-              <select id="f_ptype" required>${state.programTypes.map(p=>`<option value="${p.id}" ${editing&&editing.programTypeId===p.id?'selected':''}>${escapeHtml(p.name)}</option>`).join('')}</select>
-            </div>
-            <div class="fbox w-sel" title="مكان التنفيذ"><label>${icon('school',13)} المكان</label>
-              <select id="f_placeTypeTop">
-                <option value="">-- الكل --</option>
-                ${state.placeTypes.map(p=>`<option value="${escapeHtml(p.name)}">${escapeHtml(p.name)}</option>`).join('')}
-              </select>
-            </div>
-            <div class="fbox w-title"><label>${icon('fileText',13)} عنوان المبادرة</label>
-              <input id="f_title" required value="${editing?escapeHtml(editing.title):''}">
-            </div>
-            <div class="fbox w-sel" id="f_periodWrap"><label>${icon('clock',13)} الحصة</label>
-              <select id="f_period">
-                <option value="">-- اختر الحصة --</option>
-                ${SCHOOL_PERIODS.map((p,i)=>`<option value="${i}">${escapeHtml(p.name)}</option>`).join('')}
-              </select>
-            </div>
-          </div>
+        <td style="width:18%;" title="مجال المبادرة"><label>${icon('layers',13)} المجال</label>
+          <select id="f_field" required style="width:100%;">${state.fields.map(f=>`<option value="${f.id}" ${editing&&editing.fieldId===f.id?'selected':''}>${escapeHtml(f.name)}</option>`).join('')}</select>
+        </td>
+        <td style="width:18%;" title="مسار المبادرة"><label>${icon('activity',13)} المسار</label>
+          <select id="f_ptype" required style="width:100%;">${state.programTypes.map(p=>`<option value="${p.id}" ${editing&&editing.programTypeId===p.id?'selected':''}>${escapeHtml(p.name)}</option>`).join('')}</select>
+        </td>
+        <td style="width:16%;" title="مكان التنفيذ"><label>${icon('school',13)} المكان</label>
+          <select id="f_placeTypeTop" style="width:100%;">
+            <option value="">-- الكل --</option>
+            ${state.placeTypes.map(p=>`<option value="${escapeHtml(p.name)}">${escapeHtml(p.name)}</option>`).join('')}
+          </select>
+        </td>
+        <td style="width:30%;"><label>${icon('fileText',13)} عنوان المبادرة</label>
+          <input id="f_title" required style="width:100%;" value="${editing?escapeHtml(editing.title):''}">
+        </td>
+        <td style="width:18%;" id="f_periodWrap"><label>${icon('clock',13)} الحصة</label>
+          <select id="f_period" style="width:100%;">
+            <option value="">-- اختر الحصة --</option>
+            ${SCHOOL_PERIODS.map((p,i)=>`<option value="${i}">${escapeHtml(p.name)}</option>`).join('')}
+          </select>
         </td>
       </tr>
-      <tr><td colspan="7">
-        <div class="fgrid tight" style="margin:0;">
-          <div class="fbox w-date"><label>${icon('calendar',13)} تاريخ المبادرة</label>
-            <div style="display:flex;align-items:center;gap:7px;">
-              <input id="f_date" type="date" lang="en-GB" required value="${editing?editing.date:''}">
-              <span id="dateStatusDot" style="display:none;width:10px;height:10px;border-radius:50%;flex:none;"></span>
-            </div>
+      <tr>
+        <td style="width:16%;"><label>${icon('calendar',13)} تاريخ المبادرة</label>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <input id="f_date" type="date" lang="en-GB" required style="width:100%;" value="${editing?editing.date:''}">
+            <span id="dateStatusDot" style="display:none;width:9px;height:9px;border-radius:50%;flex:none;"></span>
           </div>
-          <div class="fbox w-date" id="f_dateToCell" style="${editing&&editing.date?'':'display:none;'}">
-            <label>${icon('calendar',13)} تاريخ الانتهاء</label>
-            <input id="f_dateTo" type="date" lang="en-GB" value="${editing?editing.dateTo||'':''}">
-          </div>
-          <div class="fbox w-days"><label>${icon('layers',13)} عدد الأيام</label>
-            <input id="f_daysCount" class="num" type="number" lang="en" min="1" step="1"
-              title="أدخل عدد الأيام ليُحسب تاريخ الانتهاء تلقائيًا" value="${editing?daysCount(editing.date, editing.dateTo):''}">
-          </div>
-          <div class="fbox w-time"><label>${icon('clock',13)} من الساعة</label>
-            <input id="f_timeFrom" type="time" lang="en" required value="${editing?editing.timeFrom:''}">
-          </div>
-          <div class="fbox w-time"><label>${icon('clock',13)} إلى الساعة</label>
-            <input id="f_timeTo" type="time" lang="en" required value="${editing?editing.timeTo:''}">
-          </div>
-          <div class="fbox w-num4"><label>${icon('users',13)} عدد المستهدفين</label>
-            <input id="f_count" class="num" type="number" lang="en" min="0" required value="${editing?editing.participantsCount:''}">
-          </div>
-          <div class="fbox w-num5" style="background:var(--gold-l);"><label>${icon('clock',13)} الساعات</label>
-            <input id="f_hoursCount" class="num" type="text" lang="en" readonly
-              value="${editing?computeHours(editing.timeFrom, editing.timeTo, editing.date, editing.dateTo):''}">
-          </div>
-        </div>
-      </td></tr>
+        </td>
+        <td style="width:16%;" id="f_dateToCell" ${editing&&editing.date?'':'hidden'}>
+          <label>${icon('calendar',13)} تاريخ الانتهاء</label>
+          <input id="f_dateTo" type="date" lang="en-GB" style="width:100%;" value="${editing?editing.dateTo||'':''}">
+        </td>
+        <td style="width:11%;"><label>${icon('layers',13)} عدد الأيام</label>
+          <input id="f_daysCount" class="num" type="number" lang="en" min="1" step="1" style="width:100%;"
+            title="أدخل عدد الأيام ليُحسب تاريخ الانتهاء تلقائيًا" value="${editing?daysCount(editing.date, editing.dateTo):''}">
+        </td>
+        <td style="width:14%;"><label>${icon('clock',13)} من الساعة</label>
+          <input id="f_timeFrom" type="time" lang="en" required style="width:100%;" value="${editing?editing.timeFrom:''}">
+        </td>
+        <td style="width:14%;"><label>${icon('clock',13)} إلى الساعة</label>
+          <input id="f_timeTo" type="time" lang="en" required style="width:100%;" value="${editing?editing.timeTo:''}">
+        </td>
+        <td style="width:15%;"><label>${icon('users',13)} عدد المستهدفين</label>
+          <input id="f_count" class="num" type="number" lang="en" min="0" required style="width:100%;" value="${editing?editing.participantsCount:''}">
+        </td>
+        <td style="width:14%;"><label>${icon('clock',13)} الساعات</label>
+          <input id="f_hoursCount" class="num" type="text" lang="en" readonly style="width:100%;background:var(--gold-l);"
+            value="${editing?computeHours(editing.timeFrom, editing.timeTo, editing.date, editing.dateTo):''}">
+        </td>
+      </tr>
     </tbody></table>
   </div>
 
@@ -4449,7 +4741,7 @@ function renderOrderForm(sub){
   <div class="card glow-card">
     <table class="form-table compact"><thead><tr><th colspan="4">
       <div class="th-bar">
-        <span style="color:#fff;">${icon('school',15)} بيانات التنفيذ والمكان والمشرفين</span>
+        <span class="sec-title">بيانات التنفيذ والمكان<i>مكان تنفيذ المبادرة والجهة المشرفة عليها</i></span>
         <span class="th-actions">
           <input id="f_schoolSearch" class="th-search" placeholder="🔎 بحث عن مدرسة/جهة...">
           <button class="plus-btn mini" title="إضافة تصنيف مكان تنفيذ" onclick="quickAddPlaceType()">+ مكان</button>
@@ -4484,19 +4776,18 @@ function renderOrderForm(sub){
   <div class="card glow-card" data-tab="1">
     <table class="form-table"><thead><tr><th>
       <div style="display:flex;align-items:center;gap:9px;">
-        <span style="color:#fff;">${icon('users',15)} منفذو المبادرة</span>
+        <span class="sec-title">منفذو المبادرة<i>اختر مقدّمي الفعالية المتاحين في التاريخ المحدد</i></span>
         <button class="plus-btn mini" title="إضافة مقدم مبادرة" onclick="quickAddTrainer()">+ مقدّم</button>
       </div>
     </th></tr></thead><tbody>
       <tr><td>
       <div class="pick-one">
-        <div class="ms-wrap" id="trainerMS">
-          <button type="button" class="ms-head" id="trainerMSBtn" aria-expanded="false">
+        <div class="ms-wrap open always-open" id="trainerMS">
+          <div class="ms-head static">
             <span class="ms-ic">${icon('users',16)}</span>
-            <span class="ms-label" id="trainerMSLabel">اختر مقدّمي الفعالية</span>
+            <span class="ms-label" id="trainerMSLabel">منفذو المبادرة</span>
             <span class="ms-n" id="trainerMSCount">0</span>
-            <span class="ms-chev">${icon('chevronLeft',15)}</span>
-          </button>
+          </div>
           <div class="ms-body" id="trainerChipList"></div>
         </div>
       </div>
@@ -4508,7 +4799,7 @@ function renderOrderForm(sub){
   <div class="card glow-card" data-tab="2">
     <table class="form-table"><thead><tr><th>
       <div style="display:flex;align-items:center;gap:9px;">
-        <span style="color:#fff;">${icon('clipboard',15)} الطلبات الإدارية</span>
+        <span class="sec-title">الطلبات الإدارية<i>حدّد ما يحتاجه الفريق لتجهيز يوم الفعالية</i></span>
         <button class="plus-btn mini" title="إضافة طلب إداري" onclick="quickAddAdminRequest()">+ طلب</button>
       </div>
     </th></tr></thead><tbody>
@@ -4518,7 +4809,7 @@ function renderOrderForm(sub){
 
   <div class="grid" style="grid-template-columns:1fr; gap:12px;" data-tab="3">
     <div class="card glow-card">
-      <table class="form-table"><thead><tr><th style="color:#fff;">${icon('fileText',15)} ملاحظات</th></tr></thead><tbody>
+      <table class="form-table"><thead><tr><th><span class="sec-title">ملاحظات<i>ملاحظات الجهة الطالبة والإدارة</i></span></th></tr></thead><tbody>
         <tr><td>
           <label class="pill-opt notes-toggle">
             <input type="checkbox" id="notesToggle" ${editing&&((editing.requesterNote||'')||(editing.adminNote||''))?'checked':''}>
@@ -4629,7 +4920,7 @@ function renderOrderForm(sub){
     const dEl = document.getElementById('f_date'), dToEl = document.getElementById('f_dateTo');
     const dayEl = document.getElementById('f_daysCount');
     const cell = document.getElementById('f_dateToCell');
-    if(cell) cell.style.display = dEl.value ? '' : 'none';
+    if(cell){ if(dEl.value) cell.removeAttribute('hidden'); else cell.setAttribute('hidden',''); }
     if(!dEl.value){ setDateValue(dToEl,''); dayEl.value=''; recalcHoursOnly(); showAcademicNotes('',''); return; }
     // فعالية ليوم واحد: تاريخ الانتهاء = تاريخ المبادرة وعدد الأيام = 1
     if(!dToEl.value) setDateValue(dToEl, dEl.value);
@@ -4816,7 +5107,7 @@ function renderOrderForm(sub){
   }
   refreshSupervisors(); refreshTrainerChips();
   /* فتح/إغلاق قائمة المدربين — تبقى مفتوحة أثناء الاختيار */
-  const msBtn = document.getElementById('trainerMSBtn');
+  const msBtn = null;
   if(msBtn){
     msBtn.onclick=()=>{
       const w = document.getElementById('trainerMS');
@@ -4893,23 +5184,21 @@ function renderOrderForm(sub){
     }
     /* بطاقات قابلة للفتح — تبقى مفتوحة بعد الاختيار */
     reqBox.innerHTML = `
-      <div class="ms-wrap" id="reqMS">
-        <button type="button" class="ms-head" id="reqMSBtn" aria-expanded="false">
+      <div class="ms-wrap open always-open" id="reqMS">
+        <div class="ms-head static">
           <span class="ms-ic">${icon('clipboard',16)}</span>
-          <span class="ms-label" id="reqMSLabel">اختر قسم الطلبات الإدارية</span>
+          <span class="ms-label" id="reqMSLabel">الطلبات الإدارية</span>
           <span class="ms-n" id="reqMSCount">${selectedReqIds.size}</span>
-          <span class="ms-chev">${icon('chevronLeft',15)}</span>
-        </button>
+        </div>
         <div class="ms-body">
           ${categories.map(cat=>{
             const items = state.adminRequestsList.filter(r=>(r.category||'إداري')===cat);
             const chosen = items.filter(r=>selectedReqIds.has(r.id)).length;
-            return `<section class="acc-card sub" data-cat="${escapeHtml(cat)}">
-              <button type="button" class="acc-head" aria-expanded="false">
-                <span class="acc-chev">${icon('chevronLeft',13)}</span>
+            return `<section class="acc-card sub open" data-cat="${escapeHtml(cat)}">
+              <div class="acc-head static">
                 <span class="acc-t">${escapeHtml(cat)}</span>
                 <span class="acc-n${chosen?' on':''}">${chosen}</span>
-              </button>
+              </div>
               <div class="acc-body">
                 ${items.length ? items.map(r=>`
                   ${(function(){
@@ -4944,7 +5233,7 @@ function renderOrderForm(sub){
       });
     }
     /* فتح البطاقة عند النقر — وتبقى مفتوحة بعد الإدخال */
-    const rBtn = document.getElementById('reqMSBtn');
+    const rBtn = null;
     if(rBtn) rBtn.onclick=()=>{
       const w=document.getElementById('reqMS');
       const open=w.classList.toggle('open');
@@ -4957,13 +5246,7 @@ function renderOrderForm(sub){
       lb.textContent = selectedReqIds.size ? `${selectedReqIds.size} طلب إداري محدد` : 'اختر قسم الطلبات الإدارية';
     }
     refreshReqLabel();
-    reqBox.querySelectorAll('.acc-head').forEach(btn=>{
-      btn.onclick=()=>{
-        const card = btn.closest('.acc-card');
-        const open = card.classList.toggle('open');
-        btn.setAttribute('aria-expanded', open ? 'true' : 'false');
-      };
-    });
+    /* الأقسام مفتوحة دائمًا — لا حاجة لمعالج الطي */
     /* اختيار بند يضيفه أو يزيله والبطاقة تبقى مفتوحة */
     reqBox.querySelectorAll('.acc-item input[type=checkbox]').forEach(cb=>{
       cb.onchange=()=>{
@@ -5083,6 +5366,45 @@ function renderOrderForm(sub){
   document.getElementById('saveOrderPrintAdminBtn').onclick = ()=>doSaveOrder('admin');
 }
 
+/* عرض تفاصيل الفعالية للاطّلاع فقط — بلا تعديل */
+function viewOrderReadOnly(id){
+  const o = state.orders.find(x=>x.id===id);
+  if(!o){ toast('الفعالية غير موجودة'); return; }
+  const sc  = state.schools.find(x=>x.id===o.schoolId);
+  const sv  = sc ? (sc.supervisors||[]).find(x=>x.id===o.supervisorId) : null;
+  const fd  = state.fields.find(x=>x.id===o.fieldId);
+  const pt  = state.programTypes.find(x=>x.id===o.programTypeId);
+  const trs = (o.trainerIds||[]).map(t=>{ const x=state.trainers.find(y=>y.id===t); return x?(x.phone?`${x.name} — ${x.phone}`:x.name):''; }).filter(Boolean);
+  const rqs = (o.adminRequests||[]).map(t=>{ const x=state.adminRequestsList.find(y=>y.id===t); return x?x.name:''; }).filter(Boolean);
+  const d1 = o.date, d2 = o.dateTo || o.date;
+  const rows = [
+    ['fileText','عنوان المبادرة', o.title||'—'],
+    ['layers','المجال / المسار', [fd&&fd.name, pt&&pt.name].filter(Boolean).join(' · ')||'—'],
+    ['calendar','التاريخ', d1 ? (d2!==d1 ? `${fmtDate(d1)} — ${fmtDate(d2)}` : fmtDate(d1)) : '—'],
+    ['clock','الوقت', fullTimeRange(o.timeFrom,o.timeTo)||'—'],
+    ['layers','المدة', `${daysCount(d1,d2)} ${dayWord(daysCount(d1,d2))} · ${computeHours(o.timeFrom,o.timeTo,d1,d2)} ساعة`],
+    ['school','المكان', sc?sc.name:'—'],
+    ['users','المشرف', sv ? (sv.phone?`${sv.name} — ${sv.phone}`:sv.name) : '—'],
+    ['users','مقدّمو المبادرة', trs.length?trs.join('، '):'—'],
+    ['clipboard','الطلبات الإدارية', rqs.length?rqs.join('، '):'—'],
+    ['users','عدد المستهدفين', o.participantsCount||'—'],
+  ];
+  if(o.requesterNote) rows.push(['fileText','ملاحظة الجهة الطالبة', o.requesterNote]);
+  if(o.adminNote)     rows.push(['clipboard','ملاحظة الإدارة', o.adminNote]);
+  const body = `
+    <div style="display:flex;align-items:center;gap:9px;margin-bottom:12px;flex-wrap:wrap;">
+      <span class="badge">${o.serial}</span>${doneBadge(o.completionStatus)}${stateBadge(o.status)}
+      <span class="helper" style="margin-inline-start:auto;">${icon('shield',13)} عرض فقط</span>
+    </div>
+    <div style="max-height:60vh;overflow:auto;">
+      ${rows.map(r=>`<div class="ro-row">
+        <span class="ro-ic">${icon(r[0],13)}</span>
+        <span class="ro-k">${escapeHtml(r[1])}</span>
+        <span class="ro-v">${escapeHtml(String(r[2]))}</span>
+      </div>`).join('')}
+    </div>`;
+  showInfoModal(`تفاصيل الفعالية`, body, box=>{ box.style.maxWidth='560px'; });
+}
 function editOrder(id){ editingOrderId=id; orderSubTab='new'; currentPage='order'; render(); }
 async function deleteOrder(id){
   if(!confirm('هل تريد حذف هذا الطلب؟')) return;
@@ -6578,6 +6900,7 @@ function renderReportsPage(c){
           <option value="school">تقرير فعاليات مدرسة خلال فترة</option>
           <option value="bypath">تقرير حسب مسار / مجال المبادرة</option>
           <option value="fieldSum">تقرير مجال المبادرة (ملخّص)</option>
+          <option value="topPrograms">أكثر البرامج طلبًا (المجال والمسار والعناوين)</option>
           <option value="quran">تقرير الأنشطة القرآنية — روح والرحيق</option>
           <option value="stats">الإحصائيات</option>
           <option value="adminReq">الطلبات الإدارية</option>
@@ -6595,6 +6918,7 @@ function renderReportsPage(c){
       else if(type==='bypath'){ mode='bypath'; drawByPath(); setActive(); if(from) document.getElementById('bp_from').value=from; if(to) document.getElementById('bp_to').value=to; }
       else if(type==='fieldSum'){ mode='fieldSum'; drawFieldSummary(); setActive(); if(from) document.getElementById('fs_from').value=from; if(to) document.getElementById('fs_to').value=to; document.getElementById('fs_go').click(); }
       else if(type==='quran'){ currentPage='quranActivities'; quranSubTab='report'; render(); }
+      else if(type==='topPrograms'){ mode='topPrograms'; drawTopPrograms(); setActive(); if(from) document.getElementById('tp_from').value=from; if(to) document.getElementById('tp_to').value=to; document.getElementById('tp_go').click(); }
       else if(type==='stats'){ mode='stats'; renderStatsPage(document.getElementById('reportContent')); setActive(); }
       else if(type==='eval'){ mode='eval'; drawEval(); setActive(); if(from) document.getElementById('ev_from').value=from; if(to) document.getElementById('ev_to').value=to; }
       else if(type==='adminReq'){ currentPage='distributions'; distSubTab='adminReq'; render(); }
@@ -6610,6 +6934,182 @@ function renderReportsPage(c){
   document.getElementById('rt_general').onclick=()=>{mode='general'; drawGeneral(); setActive();};
   document.getElementById('rt_bypath').onclick=()=>{mode='bypath'; drawByPath(); setActive();};
   document.getElementById('rt_stats').onclick=()=>{mode='stats'; renderStatsPage(document.getElementById('reportContent')); setActive();};
+
+  /* ══════════════════════════════════════════════════════════════════
+     أكثر البرامج طلبًا — حسب المجال والمسار والعناوين
+     العناوين تُجمَّع بتشابه دلالي (تطبيع عربي + تجذيع خفيف + Jaccard)
+     ══════════════════════════════════════════════════════════════════ */
+  function arNorm(s){
+    return String(s||'')
+      .replace(/[\u064B-\u0652\u0670\u0640]/g,'')          // تشكيل وتطويل
+      .replace(/[أإآا]/g,'ا').replace(/[ىي]/g,'ي')
+      .replace(/ة/g,'ه').replace(/[ؤئء]/g,'ء')
+      .replace(/[^\u0600-\u06FF0-9a-zA-Z ]/g,' ')
+      .replace(/\s+/g,' ').trim().toLowerCase();
+  }
+  function arStem(w){
+    w = w.replace(/^(وال|بال|كال|فال|ال|و|ف|ب|ك|ل)/,'');
+    w = w.replace(/(اتها|اتهم|تها|هما|كما|ونها|انها|ات|ون|ين|ان|ها|هم|كم|نا|ية|ي|ه|ا)$/,'');
+    return w;
+  }
+  const AR_STOP = new Set(['في','من','علي','عن','الي','مع','و','هذا','هذه','التي','الذي','ما',
+    'برنامج','فعاليه','مبادره','دوره','ورشه','يوم','حول','بين','كل']);
+  function titleTokens(s){
+    return [...new Set(arNorm(s).split(' ').map(arStem).filter(w=>w.length>2 && !AR_STOP.has(w)))];
+  }
+  function simRatio(a,b){
+    const A=new Set(titleTokens(a)), B=new Set(titleTokens(b));
+    if(!A.size || !B.size) return 0;
+    let inter=0; A.forEach(x=>{ if(B.has(x)) inter++; });
+    return inter/(A.size + B.size - inter);
+  }
+  function drawTopPrograms(){
+    const box = document.getElementById('reportContent');
+    box.innerHTML = `<div class="card">
+      <h2>أكثر البرامج طلبًا</h2>
+      <div class="rp-dates" style="margin-bottom:12px;">
+        <div class="rp-date"><label>من تاريخ</label><input id="tp_from" type="date" lang="en-GB"></div>
+        <div class="rp-date"><label>إلى تاريخ</label><input id="tp_to" type="date" lang="en-GB"></div>
+        <div class="rp-date"><label>حساسية تجميع العناوين</label>
+          <select id="tp_sim">
+            <option value="0.75">دقيق (تشابه عالٍ)</option>
+            <option value="0.55" selected>متوازن</option>
+            <option value="0.40">واسع (يجمع أكثر)</option>
+          </select></div>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
+        <button class="btn btn-primary" id="tp_go">${icon('barChart',14)} عرض</button>
+        <button class="icon-btn" id="tp_print" title="طباعة" aria-label="طباعة" style="width:28px;height:28px;padding:0;">${icon('printer',14)}</button>
+        <button class="icon-btn" id="tp_pdf" title="تنزيل PDF" aria-label="تنزيل PDF" style="width:28px;height:28px;padding:0;">${icon('download',14)}</button>
+        <button class="icon-btn" id="tp_excel" title="تنزيل Excel" aria-label="تنزيل Excel" style="width:28px;height:28px;padding:0;">${icon('sheet',14)}</button>
+      </div>
+      <div id="tp_result" style="margin-top:14px;"></div>
+    </div>`;
+
+    function gather(){
+      const from = document.getElementById('tp_from').value;
+      const to   = document.getElementById('tp_to').value;
+      const TH   = parseFloat(document.getElementById('tp_sim').value);
+      const list = (state.orders||[]).filter(o=>{
+        if((o.status||'active')==='cancelled') return false;
+        const s=o.date||'', e=o.dateTo||o.date||'';
+        if(from && e && e<from) return false;
+        if(to && s && s>to) return false;
+        return !!s;
+      });
+      const total = list.length;
+      /* حسب المجال */
+      const byField = (state.fields||[]).map(f=>({
+        name:f.name, n:list.filter(o=>o.fieldId===f.id).length
+      })).filter(x=>x.n).sort((a,b)=>b.n-a.n);
+      /* حسب المسار */
+      const byPath = (state.programTypes||[]).map(p=>({
+        name:p.name, n:list.filter(o=>o.programTypeId===p.id).length
+      })).filter(x=>x.n).sort((a,b)=>b.n-a.n);
+      /* تجميع العناوين المتشابهة */
+      const groups = [];
+      list.forEach(o=>{
+        const t = (o.title||'').trim(); if(!t) return;
+        let g = groups.find(x => simRatio(x.rep, t) >= TH);
+        if(!g){ g = {rep:t, items:[], variants:new Set()}; groups.push(g); }
+        g.items.push(o); g.variants.add(t);
+        /* العنوان الممثِّل = الأكثر تكرارًا */
+        if(t.length < g.rep.length) g.rep = t;
+      });
+      groups.forEach(g=>{
+        g.n = g.items.length;
+        g.variantList = Array.from(g.variants);
+        g.schools = new Set(g.items.map(x=>x.schoolId).filter(Boolean)).size;
+        g.hours = Math.round(g.items.reduce((s,x)=>s+computeHours(x.timeFrom,x.timeTo,x.date,x.dateTo),0)*10)/10;
+        g.people = g.items.reduce((s,x)=>s+(Number(x.participantsCount)||0),0);
+        const fd = state.fields.find(f=>f.id===g.items[0].fieldId);
+        g.field = fd ? fd.name : '—';
+      });
+      groups.sort((a,b)=>b.n-a.n);
+      return {list, total, byField, byPath, groups, from, to, TH};
+    }
+
+    function barRow(name, n, max, total){
+      const pct = total ? Math.round(n/total*1000)/10 : 0;
+      return `<tr>
+        <td style="text-align:right;">${escapeHtml(name)}</td>
+        <td style="width:40%;"><div style="height:8px;background:var(--sand-200);border-radius:999px;overflow:hidden;">
+          <div style="width:${max?Math.round(n/max*100):0}%;height:100%;background:var(--gold);border-radius:999px;"></div></div></td>
+        <td style="width:60px;">${n}</td>
+        <td style="width:64px;direction:ltr;">${pct}%</td>
+      </tr>`;
+    }
+    function render(){
+      const d = gather();
+      const el = document.getElementById('tp_result');
+      if(!d.total){ el.innerHTML = `<div class="empty-state">لا توجد فعاليات ضمن هذه الفترة</div>`; return; }
+      const maxF = Math.max(...d.byField.map(x=>x.n), 1);
+      const maxP = Math.max(...d.byPath.map(x=>x.n), 1);
+      const maxT = Math.max(...d.groups.map(x=>x.n), 1);
+      el.innerHTML = `
+        <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px;margin:0 0 14px;">
+          <div class="card"><h2>حسب مجال المبادرة</h2>
+            <table style="font-size:12.5px;"><thead><tr><th style="text-align:right;">المجال</th><th>النسبة</th><th>العدد</th><th>%</th></tr></thead>
+            <tbody>${d.byField.map(x=>barRow(x.name,x.n,maxF,d.total)).join('')}</tbody></table></div>
+          <div class="card"><h2>حسب مسار المبادرة</h2>
+            <table style="font-size:12.5px;"><thead><tr><th style="text-align:right;">المسار</th><th>النسبة</th><th>العدد</th><th>%</th></tr></thead>
+            <tbody>${d.byPath.map(x=>barRow(x.name,x.n,maxP,d.total)).join('')}</tbody></table></div>
+        </div>
+        <div class="card"><h2>أكثر العناوين طلبًا — بعد دمج المتشابهة</h2>
+          <div class="helper" style="margin-bottom:9px;">
+            ${d.total} فعالية · ${d.groups.length} عنوان بعد الدمج
+            ${d.total>d.groups.length?` · دُمج ${d.total-d.groups.length} عنوانًا متشابهًا`:''}
+          </div>
+          <table style="font-size:12.5px;"><thead><tr>
+            <th style="width:40px;">#</th><th style="text-align:right;">العنوان</th><th>المجال</th>
+            <th>الطلبات</th><th>الجهات</th><th>الساعات</th><th>المستهدفون</th><th>الصيغ</th>
+          </tr></thead><tbody>
+            ${d.groups.slice(0,40).map((g,i)=>`<tr>
+              <td>${i+1}</td>
+              <td style="text-align:right;">${escapeHtml(g.rep)}
+                ${g.variantList.length>1?`<div class="helper" style="font-size:10.5px;">${
+                  escapeHtml(g.variantList.filter(v=>v!==g.rep).slice(0,3).join(' · '))}</div>`:''}</td>
+              <td>${escapeHtml(g.field)}</td>
+              <td><b>${g.n}</b></td>
+              <td>${g.schools}</td>
+              <td>${g.hours}</td>
+              <td>${g.people}</td>
+              <td>${g.variantList.length}</td>
+            </tr>`).join('')}
+          </tbody></table>
+          ${d.groups.length>40?`<div class="helper" style="margin-top:6px;">تُعرض أعلى 40 عنوانًا من ${d.groups.length}</div>`:''}
+        </div>`;
+      enhanceReportTable(el);
+    }
+    document.getElementById('tp_go').onclick = render;
+    ['tp_from','tp_to','tp_sim'].forEach(id=>document.getElementById(id).addEventListener('change', render));
+
+    const HDR = ['#','العنوان','المجال','الطلبات','الجهات','الساعات','المستهدفون','عدد الصيغ'];
+    function rowsOf(d){ return d.groups.map((g,i)=>[i+1,g.rep,g.field,g.n,g.schools,g.hours,g.people,g.variantList.length]); }
+    function printIt(){
+      const d = gather();
+      if(!d.total){ toast('لا توجد بيانات ضمن هذه الفترة'); return; }
+      doPrintDoc(buildReportDoc({
+        titleAr:'أكثر البرامج طلبًا',
+        subtitle:`من ${d.from?fmtDate(d.from):'—'} إلى ${d.to?fmtDate(d.to):'—'}`,
+        kpis:[
+          {v:d.total,l:'📋 إجمالي الطلبات'}, {v:d.groups.length,l:'📄 عناوين بعد الدمج'},
+          {v:d.byField.length,l:'🗂️ المجالات'}, {v:d.byPath.length,l:'📈 المسارات'},
+        ],
+        headers:HDR,
+        rows: rowsOf(d).map(r=>r.map(v=>escapeHtml(String(v))))
+      }), true, 'A4');
+    }
+    document.getElementById('tp_print').onclick = printIt;
+    document.getElementById('tp_pdf').onclick   = printIt;
+    document.getElementById('tp_excel').onclick = ()=>{
+      const d = gather();
+      if(!d.total){ toast('لا توجد بيانات ضمن هذه الفترة'); return; }
+      exportToExcel('أكثر_البرامج_طلبا.xlsx', HDR, rowsOf(d),
+        `أكثر البرامج طلبًا (من ${d.from?fmtDate(d.from):'—'} إلى ${d.to?fmtDate(d.to):'—'})`);
+    };
+    render();
+  }
 
   /* ══ تقرير مجال المبادرة (ملخّص): صف لكل مجال بإجمالياته ══ */
   function drawFieldSummary(){
@@ -8265,6 +8765,27 @@ function renderSettingsPage(c){
     </tbody></table>
   </div>
 
+  <div class="card" style="border:2px solid var(--danger,#CF443A);">
+    <h2 style="background:var(--danger,#CF443A) !important;">${icon('alert',15)} النسخ الاحتياطي والاسترجاع</h2>
+    ${(function(){
+      const b = backupInfo();
+      return `<div class="helper" style="margin-bottom:10px;line-height:1.9;">
+        <b>النسخة الأخيرة داخل هذا المتصفح:</b> ${b.lastSum ? escapeHtml(b.lastSum) : 'لا توجد'}
+        ${b.at?` — ${escapeHtml(new Date(b.at).toLocaleString('ar'))}`:''}<br>
+        <b>النسخة التي قبلها:</b> ${b.prevSum ? escapeHtml(b.prevSum) : 'لا توجد'}<br>
+        <b>البيانات الحالية:</b> ${(state.orders||[]).length} فعالية · ${(state.schools||[]).length} جهة · ${(state.trainers||[]).length} مقدّم
+      </div>`;
+    })()}
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="btn btn-primary" onclick="downloadBackup()">${icon('download',15)} تنزيل نسخة احتياطية</button>
+      <button class="btn btn-outline" onclick="document.getElementById('restoreFile').click()">${icon('copy',15)} استرجاع من ملف</button>
+      <input type="file" id="restoreFile" accept=".json" style="display:none" onchange="restoreFromFile(this.files[0])">
+      <button class="btn btn-outline" onclick="restoreLocal('last')">استرجاع النسخة الأخيرة</button>
+      <button class="btn btn-outline" onclick="restoreLocal('prev')">استرجاع النسخة السابقة</button>
+    </div>
+    <div class="helper" style="margin-top:9px;">نزّل نسخة احتياطية دوريًا واحتفظ بها خارج المتصفح.</div>
+  </div>
+
   <div class="card"><h2>${icon('school',15)} المدارس والمشرفون
       <span style="display:inline-flex;gap:5px;align-items:center;">
         <input id="schSearch" placeholder="بحث بالمدرسة أو المشرف أو الهاتف..." autocomplete="off"
@@ -8694,6 +9215,56 @@ async function dedupeAll(){
   await saveState();
   toast(`تم حذف ${schoolsRemoved} مدرسة و${svRemoved} مشرف مكرر`);
   render();
+}
+/* ══════════════════════════════════════════════════════════════════
+   أدوات النسخ الاحتياطي والاسترجاع
+   ══════════════════════════════════════════════════════════════════ */
+function backupInfo(){
+  try{
+    const last = localStorage.getItem('backup_last');
+    const prev = localStorage.getItem('backup_prev');
+    const at   = localStorage.getItem('backup_at');
+    const sum = s => { try{ const o=JSON.parse(s); return `${(o.orders||[]).length} فعالية · ${(o.schools||[]).length} جهة · ${(o.trainers||[]).length} مقدّم`; }catch(e){ return 'غير صالحة'; } };
+    return { last, prev, at, lastSum: last?sum(last):null, prevSum: prev?sum(prev):null };
+  }catch(e){ return {}; }
+}
+/* تنزيل نسخة احتياطية كاملة كملف JSON */
+function downloadBackup(){
+  try{
+    const blob = new Blob([JSON.stringify(state, null, 2)], {type:'application/json'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `نسخة-احتياطية-${new Date().toISOString().slice(0,10)}.json`;
+    a.click(); URL.revokeObjectURL(a.href);
+    toast('تم تنزيل النسخة الاحتياطية');
+  }catch(e){ toast('تعذّر التنزيل: '+e.message); }
+}
+/* استرجاع من ملف JSON */
+function restoreFromFile(file){
+  if(!file) return;
+  const rd = new FileReader();
+  rd.onload = async ()=>{
+    try{
+      const data = JSON.parse(rd.result);
+      if(!data || !Array.isArray(data.orders)) throw new Error('الملف لا يحتوي بيانات النظام');
+      if(!confirm(`سيتم استبدال البيانات الحالية بـ:\n\n${(data.orders||[]).length} فعالية\n${(data.schools||[]).length} جهة\n${(data.trainers||[]).length} مقدّم\n\nمتابعة؟`)) return;
+      state = data; __readFailed = false;
+      await flushSave(); toast('تم الاسترجاع بنجاح'); render();
+    }catch(e){ alert('تعذّر قراءة الملف: '+e.message); }
+  };
+  rd.readAsText(file);
+}
+/* استرجاع من النسخة المحلية داخل المتصفح */
+async function restoreLocal(which){
+  const info = backupInfo();
+  const raw = which==='prev' ? info.prev : info.last;
+  if(!raw){ toast('لا توجد نسخة محفوظة في هذا المتصفح'); return; }
+  try{
+    const data = JSON.parse(raw);
+    if(!confirm(`استرجاع النسخة (${which==='prev'?'السابقة':'الأخيرة'}):\n\n${which==='prev'?info.prevSum:info.lastSum}\n\nمتابعة؟`)) return;
+    state = data; __readFailed = false;
+    await flushSave(); toast('تم الاسترجاع'); render();
+  }catch(e){ alert('النسخة غير صالحة: '+e.message); }
 }
 async function dedupeSchools(){
   const norm = s => (s||'').replace(/\s+/g,' ').trim();
