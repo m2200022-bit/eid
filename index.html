@@ -1953,6 +1953,68 @@
   .glow-card input[type="date"]::-webkit-calendar-picker-indicator:hover,
   .glow-card input[type="time"]::-webkit-calendar-picker-indicator:hover{opacity:1;}
 
+  /* ══════════ قائمة أنواع التقارير القابلة للبحث ══════════ */
+  .rt-list{display:flex; flex-direction:column; gap:5px; max-height:420px; overflow-y:auto;}
+  .rt-item{all:unset; cursor:pointer; display:flex; align-items:center; gap:10px; width:100%;
+    box-sizing:border-box; padding:10px 12px; border-radius:10px;
+    border:1px solid var(--border-c); background:#fff;
+    transition:border-color .18s, background .18s, transform .18s;}
+  .rt-item:hover{border-color:var(--gold); background:var(--gold-l); transform:translateY(-1px);}
+  .rt-item.active{border-color:var(--gold); background:var(--gold-l);}
+  .rt-ic{flex:none; width:32px; height:32px; border-radius:9px; display:grid; place-items:center;
+    background:var(--gold-l); color:var(--gold-d);}
+  .rt-item:hover .rt-ic{background:#fff;}
+  .rt-body{flex:1; min-width:0; display:flex; flex-direction:column; text-align:right;}
+  .rt-body b{font-size:13px; font-weight:700; color:var(--heading-text);
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .rt-body i{font-style:normal; font-size:11px; color:var(--muted-text); margin-top:2px;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .rt-go{flex:none; color:var(--soft-text);}
+  .rt-item:hover .rt-go{color:var(--gold);}
+  #rl_search{min-height:38px !important; border-radius:10px !important; font-size:13px !important;}
+
+  /* ══════════ جدول إتاحة المقدّمين ══════════ */
+  .sched-tbl{border-collapse:separate; border-spacing:2px; font-size:11.5px;}
+  .sched-tbl th{background:var(--sand-100) !important; padding:5px 4px !important;
+    font-size:10.5px; color:var(--muted-text) !important; white-space:nowrap;}
+  .sched-tbl th i{display:block; font-style:normal; font-size:9px; opacity:.7;}
+  .sched-tbl th.off{background:var(--info-bg) !important;}
+  .sched-tbl td{padding:3px 4px !important; text-align:center;}
+  .sched-tbl .cell{width:24px; min-width:24px; height:24px; border-radius:6px;
+    font-size:11px; line-height:1;}
+  .sched-tbl .cell.free{background:var(--success-bg,#E3F1EA);}
+  .sched-tbl .cell.busy{background:var(--danger-bg,#FBE7E5); color:var(--danger,#CF443A);
+    cursor:pointer; font-weight:700;}
+  .sched-tbl .cell.busy:hover{background:var(--danger,#CF443A); color:#fff;}
+  .sched-tbl .cell.off{background:var(--info-bg,#E4EDF2);}
+  .lg-dot{display:inline-block; width:11px; height:11px; border-radius:3px;
+    vertical-align:-1px; margin-inline:8px 3px;}
+  .lg-free{background:var(--success-bg,#E3F1EA); border:1px solid var(--success,#388467);}
+  .lg-busy{background:var(--danger-bg,#FBE7E5); border:1px solid var(--danger,#CF443A);}
+  .lg-off{background:var(--info-bg,#E4EDF2); border:1px solid var(--info,#3E7894);}
+  .req-chip{display:inline-block; background:var(--gold-l); color:var(--gold-d);
+    border-radius:999px; padding:2px 10px; font-size:11px; font-weight:600;}
+  tr.clickable{cursor:pointer;}
+  tr.clickable:hover{background:var(--card-hover);}
+
+  /* مواعيد مقترحة + إحكام تقرير المقدّمين */
+  .plan-chip{display:inline-block; background:var(--success-bg,#E3F1EA); color:var(--success,#388467);
+    border-radius:7px; padding:3px 9px; font-size:11.5px; font-weight:600; margin:2px 2px 2px 0;
+    white-space:nowrap;}
+  .plan-chip.warn{background:var(--warning-bg,#FBF0DA); color:var(--warning,#B07A12);}
+  /* أعمدة تقرير المقدّمين: الأيام والهواتف ضيقة والتاريخ داخل إطاره */
+  .rep-doc th:nth-child(4), .rep-doc td:nth-child(4){width:42px !important;}
+  .rep-doc th:nth-child(3), .rep-doc td:nth-child(3),
+  .rep-doc th:nth-child(6), .rep-doc td:nth-child(6){width:74px !important; direction:ltr;}
+  .rep-doc th:nth-child(1), .rep-doc td:nth-child(1){width:78px !important; white-space:nowrap;}
+  /* شعار أمر التكليف أكبر قليلًا دون التأثير على ارتفاع السطر */
+  .doc .org-logo, .doc .logo-box img{max-height:19mm !important; height:auto !important;}
+  /* إخفاء مربع الاختيار الأصلي المكرر */
+  .opt-row input[type="checkbox"]{position:absolute !important; opacity:0 !important;
+    width:0 !important; height:0 !important; margin:0 !important; pointer-events:none;}
+
+  .plan-chip.pinned{background:var(--info-bg,#E4EDF2); color:var(--info,#3E7894);
+    border:1px dashed var(--info,#3E7894); font-weight:700;}
 </style>
 </head>
 <body>
@@ -2274,6 +2336,7 @@ const PAGES = [
   {id:'order', label:'طلبات الفعاليات والمبادرات', icon:'clipboard', roles:['admin','user'], hidden:true},
   {id:'distributions', label:'الطلبات والتوزيعات والإداريات', icon:'layers', roles:['admin','user'], hidden:true},
   {id:'operations', label:'مركز التشغيل', icon:'activity', roles:['admin','user']},
+  {id:'schedule', label:'جدول المقدّمين', icon:'calendar', roles:['admin','user']},
   {id:'reports', label:'التقارير', icon:'barChart', roles:['admin','user']},
   {id:'quranActivities', label:'الأنشطة القرآنية', icon:'bookOpen', roles:['admin','user']},
   {id:'tasks', label:'المهام', icon:'checkCircle', roles:['admin','user'], hidden:true},
@@ -2783,6 +2846,7 @@ function render(){
     admin:['الإداريات','المتابعة اليومية للفعاليات'],
     reports:['التقارير','تقارير مقدمي الفعاليات والمدارس والساعات'],
     operations:['مركز التشغيل','رؤية واحدة لكل ما يحتاج قرارًا أو متابعة أو توثيقًا اليوم'],
+    schedule:['جدول المقدّمين','أحدث الفعاليات وإتاحة مقدّمي المبادرات خلال الفترة'],
     adminRequestsReport:['الطلبات الإدارية','تقرير مفرز بكل الطلبات الإدارية للبرامج'],
     quranActivities:['الأنشطة القرآنية','بيانات وتقارير برنامجي روح والرحيق'],
     stats:['الإحصائيات','تصنيفات وأعداد البرامج'],
@@ -2807,6 +2871,7 @@ function render(){
   else if(currentPage==='order') renderOrderPage(c);
   else if(currentPage==='admin') renderAdminPage(c);
   else if(currentPage==='operations') renderOperationsCenter(c);
+  else if(currentPage==='schedule') renderSchedulePage(c);
   else if(currentPage==='reports'){
     if(reportsSubTab==='sheet') renderQuickEditSheet(c);
     else renderReportsPage(c);
@@ -3210,6 +3275,417 @@ function closeOrderDrawer(silent){
   document.removeEventListener('keydown', drawerEsc);
   if(!silent){ editingOrderId=null; render(); }
 }
+/* ══════════════════════════════════════════════════════════════════════
+   جدول المقدّمين — أحدث الفعاليات وإتاحة مقدّمي المبادرات
+   ══════════════════════════════════════════════════════════════════════ */
+let schedRange = 'week';
+/* ══════════════════════════════════════════════════════════════════════
+   مقترح توزيع فعاليات جهة على الأشهر — يتجنّب الإجازات والاختبارات
+   ══════════════════════════════════════════════════════════════════════ */
+function openPlanWizard(){
+  const schools = (state.schools||[]).slice().sort((a,b)=>a.name.localeCompare(b.name,'ar'));
+  if(!schools.length){ toast('لا توجد جهات مسجّلة'); return; }
+  const guess = schools.find(s=>/أسامة\s*بن\s*زيد/.test(s.name)) || schools[0];
+  openModal('اقتراح توزيع فعاليات', [
+    {name:'school',  label:'الجهة', type:'select',
+     options: schools.map(s=>({value:s.id, label:s.name}))},
+    {name:'perMonth',label:'عدد الفعاليات شهريًا', type:'number'},
+    {name:'from',    label:'من تاريخ', type:'date'},
+    {name:'to',      label:'إلى تاريخ', type:'date'},
+    {name:'pin',     label:'تواريخ تُثبَّت ولا تُغيَّر (مفصولة بفاصلة)'},
+  ], v=>{
+    const sid = v.school || guess.id;
+    const per = Math.max(1, Number(v.perMonth) || 2);
+    const from = v.from || todayStr();
+    const to   = v.to   || addDaysISO(from, 364);
+    const pins = String(v.pin||'').split(/[،,]/).map(x=>normPinDate(x)).filter(Boolean);
+    setTimeout(()=>showPlan(sid, per, from, to, pins), 60);
+  });
+  setTimeout(()=>{
+    const s=document.getElementById('mf_school'); if(s) s.value = guess.id;
+    const p=document.getElementById('mf_perMonth'); if(p) p.value = 2;
+    const f=document.getElementById('mf_from'); if(f) f.value = todayStr();
+    const t=document.getElementById('mf_to');   if(t) t.value = addDaysISO(todayStr(), 364);
+    const pn=document.getElementById('mf_pin'); if(pn) pn.value = '30-9-2026';
+  },0);
+}
+/* يقبل 30-9-2026 أو 2026-09-30 أو 30/09/2026 */
+function normPinDate(s){
+  const t = String(s||'').trim(); if(!t) return '';
+  let m = t.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})$/);
+  if(m) return `${m[1]}-${String(m[2]).padStart(2,'0')}-${String(m[3]).padStart(2,'0')}`;
+  m = t.match(/^(\d{1,2})[-/](\d{1,2})[-/](\d{4})$/);
+  if(m) return `${m[3]}-${String(m[2]).padStart(2,'0')}-${String(m[1]).padStart(2,'0')}`;
+  return '';
+}
+function showPlan(schoolId, perMonth, from, to, pins){
+  pins = pins || [];
+  const sc = state.schools.find(x=>x.id===schoolId);
+  if(!sc){ toast('الجهة غير موجودة'); return; }
+  const MONTHS = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+  const isWeekend = iso => { const d=new Date(iso+'T00:00:00').getDay(); return d===5 || d===6; };
+  /* يوم صالح: ليس عطلة ولا محظورًا بالتقويم ولا مشغولًا بفعالية أخرى لنفس الجهة */
+  function dayInfo(iso){
+    if(isWeekend(iso)) return {ok:false, why:'عطلة نهاية الأسبوع'};
+    const notes = (typeof checkAcademicDate==='function') ? (checkAcademicDate(iso)||[]) : [];
+    const block = notes.find(n=>n && n.type==='block');
+    if(block) return {ok:false, why:block.msg || 'محظور بالتقويم'};
+    const warn = notes.find(n=>n && n.type==='warn');
+    const busy = (state.orders||[]).some(o=>{
+      if((o.status||'active')==='cancelled') return false;
+      const s=o.date||''; if(!s) return false;
+      const e=o.dateTo||s;
+      return iso>=s && iso<=e && o.schoolId===schoolId;
+    });
+    if(busy) return {ok:false, why:'الجهة مرتبطة بفعالية في هذا اليوم'};
+    return {ok:true, warn: warn ? (warn.msg||'تنبيه') : null};
+  }
+  /* بناء قائمة الأشهر */
+  const months = [];
+  let cur = from.slice(0,7);
+  const last = to.slice(0,7);
+  let guard = 0;
+  while(cur <= last && guard < 36){
+    months.push(cur);
+    const [y,m] = cur.split('-').map(Number);
+    const ny = m===12 ? y+1 : y, nm = m===12 ? 1 : m+1;
+    cur = `${ny}-${String(nm).padStart(2,'0')}`;
+    guard++;
+  }
+  const plan = months.map(mk=>{
+    const [y,m] = mk.split('-').map(Number);
+    const lastDay = new Date(y, m, 0).getDate();
+    /* المواعيد المثبّتة في هذا الشهر تبقى كما هي وتُحسب من نصيبه */
+    const pinned = pins.filter(p=>p.slice(0,7)===mk).sort();
+    const need = Math.max(0, perMonth - pinned.length);
+    const cands = [];
+    for(let d=1; d<=lastDay; d++){
+      const iso = `${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      if(iso < from || iso > to) continue;
+      if(pins.includes(iso)) continue;              // لا نقترح فوق مثبّت
+      const inf = dayInfo(iso);
+      if(inf.ok) cands.push({iso, warn:inf.warn});
+    }
+    /* نوزّع المقترحات على الشهر بتباعد متساوٍ، ونفضّل الأيام بلا تنبيه */
+    const clean = cands.filter(c=>!c.warn);
+    const pool  = clean.length >= need ? clean : cands;
+    const picks = pinned.map(p=>({iso:p, pinned:true}));
+    if(pool.length && need>0){
+      const step = pool.length / need;
+      for(let i=0;i<need;i++){
+        const idx = Math.min(pool.length-1, Math.floor(i*step + step/2));
+        if(!picks.some(p=>p.iso===pool[idx].iso)) picks.push(pool[idx]);
+      }
+    }
+    picks.sort((a,b)=>a.iso.localeCompare(b.iso));
+    return {mk, label:`${MONTHS[m-1]} ${y}`, picks, avail:cands.length, pinnedN:pinned.length};
+  });
+  const totalPicks = plan.reduce((s,p)=>s+p.picks.length, 0);
+  const shortMonths = plan.filter(p=>p.picks.length < perMonth);
+  const DW = ['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+  const body = `
+    <div class="helper" style="margin-bottom:10px;line-height:1.9;">
+      <b>${escapeHtml(sc.name)}</b> — ${perMonth} فعالية شهريًا<br>
+      ${plan.length} شهرًا · <b>${totalPicks}</b> موعدًا مقترحًا
+      ${shortMonths.length?`<br><span style="color:var(--warning);">⚠ ${shortMonths.length} شهرًا لم تكتمل مواعيدها (أيام متاحة غير كافية)</span>`:''}
+    </div>
+    <div style="max-height:52vh;overflow:auto;">
+      <table class="set-table" style="width:100%;"><thead><tr>
+        <th style="text-align:right;">الشهر</th><th style="text-align:right;">المواعيد المقترحة</th><th>أيام متاحة</th>
+      </tr></thead><tbody>
+        ${plan.map(p=>`<tr>
+          <td style="text-align:right;white-space:nowrap;"><b>${escapeHtml(p.label)}</b></td>
+          <td style="text-align:right;white-space:normal;">
+            ${p.picks.length ? p.picks.map(k=>{
+              const dw = DW[new Date(k.iso+'T00:00:00').getDay()];
+              const cls = k.pinned ? ' pinned' : (k.warn ? ' warn' : '');
+              const tip = k.pinned ? 'موعد مثبّت — لن يتغيّر' : (k.warn || 'يوم متاح');
+              return `<span class="plan-chip${cls}" title="${escapeHtml(tip)}">
+                ${k.pinned?'📌 ':''}${dw} ${fmtDate(k.iso)}</span>`;
+            }).join(' ') : `<span class="helper">لا توجد أيام متاحة</span>`}
+          </td>
+          <td>${p.avail}</td>
+        </tr>`).join('')}
+      </tbody></table>
+    </div>
+    <div class="helper" style="margin-top:9px;">
+      استُبعدت عطلات نهاية الأسبوع وأيام الاختبارات والإجازات وأيام ارتباط الجهة بفعالية أخرى.
+      المواعيد المميّزة بلون تحذيري تقع قرب فترة حساسة.
+    </div>`;
+  showInfoModal(`مقترح توزيع — ${escapeHtml(sc.name)}`, body, box=>{
+    box.style.maxWidth = '760px';
+    /* زر تطبيق التوزيع على فعاليات الجهة فعليًا */
+    const act = box.querySelector('.modal-actions');
+    if(act){
+      const b = document.createElement('button');
+      b.className = 'btn btn-primary';
+      b.innerHTML = `${icon('checkCircle',15)} تطبيق التوزيع على الفعاليات`;
+      b.onclick = ()=>applyPlan(schoolId, plan, pins);
+      act.insertBefore(b, act.firstChild);
+    }
+  });
+}
+/* تطبيق التوزيع: يعيد تأريخ فعاليات الجهة على المواعيد المقترحة، ويترك المثبّتة كما هي */
+async function applyPlan(schoolId, plan, pins){
+  const sc = state.schools.find(x=>x.id===schoolId);
+  const slots = plan.flatMap(p=>p.picks.map(k=>({iso:k.iso, pinned:!!k.pinned})))
+    .sort((a,b)=>a.iso.localeCompare(b.iso));
+  /* فعاليات الجهة النشطة مرتّبة زمنيًا */
+  const evts = (state.orders||[]).filter(o=>
+    o.schoolId===schoolId && (o.status||'active')!=='cancelled' && o.date)
+    .sort((a,b)=>(a.date||'').localeCompare(b.date||''));
+  if(!evts.length){ toast('لا توجد فعاليات لهذه الجهة'); return; }
+  /* الفعاليات الواقعة على تواريخ مثبّتة تبقى مكانها */
+  const pinnedEvts = evts.filter(o=>pins.includes(o.date));
+  const movable    = evts.filter(o=>!pins.includes(o.date));
+  const freeSlots  = slots.filter(s=>!s.pinned).map(s=>s.iso);
+  const changes = [];
+  movable.forEach((o,i)=>{
+    const target = freeSlots[i];
+    if(!target || target===o.date) return;
+    changes.push({o, from:o.date, to:target});
+  });
+  if(!changes.length){ toast('لا توجد تواريخ تحتاج تغييرًا'); return; }
+  const extra = movable.length - freeSlots.length;
+  const msg = `سيتم تعديل تواريخ ${changes.length} فعالية لـ${sc?sc.name:''}:\n\n`
+    + changes.slice(0,12).map(c=>`• ${c.o.title||c.o.serial}\n   ${fmtDate(c.from)}  ←  ${fmtDate(c.to)}`).join('\n')
+    + (changes.length>12 ? `\n… و${changes.length-12} أخرى` : '')
+    + (pinnedEvts.length ? `\n\n📌 ${pinnedEvts.length} فعالية على تواريخ مثبّتة لن تتغيّر.` : '')
+    + (extra>0 ? `\n\n⚠ ${extra} فعالية تتجاوز المواعيد المقترحة وستبقى بتواريخها.` : '')
+    + `\n\nمتابعة؟`;
+  if(!confirm(msg)) return;
+  changes.forEach(c=>{
+    const days = daysCount(c.o.date, c.o.dateTo);
+    c.o.date = c.to;
+    c.o.dateTo = days>1 ? addDaysISO(c.to, days-1) : c.to;   // نحافظ على مدة الفعالية
+  });
+  await saveState();
+  closeModal();
+  toast(`تم تعديل ${changes.length} فعالية`);
+  render();
+}
+
+function renderSchedulePage(c){
+  const today = todayStr();
+  const spans = {
+    week:  {label:'خلال أسبوع', from:today, to:addDaysISO(today, 6)},
+    month: {label:'خلال شهر',   from:today, to:addDaysISO(today, 29)},
+    past:  {label:'الأسبوع الماضي', from:addDaysISO(today,-7), to:today},
+  };
+  if(!window.__schedFrom) window.__schedFrom = spans[schedRange].from;
+  if(!window.__schedTo)   window.__schedTo   = spans[schedRange].to;
+  const F = window.__schedFrom, T = window.__schedTo;
+
+  const inRange = o=>{
+    const s=o.date||''; if(!s) return false;
+    const e=o.dateTo||s;
+    return s<=T && e>=F && (o.status||'active')!=='cancelled';
+  };
+  const list = (state.orders||[]).filter(inRange)
+    .sort((a,b)=>(a.date||'').localeCompare(b.date||'') || (a.timeFrom||'').localeCompare(b.timeFrom||''));
+
+  /* الأيام المشغولة لكل مقدّم */
+  const busyBy = {};
+  list.forEach(o=>{
+    (o.trainerIds||[]).forEach(tid=>{
+      const s=o.date, e=o.dateTo||o.date;
+      let cur=s, guard=0;
+      while(cur<=e && guard<90){
+        if(cur>=F && cur<=T){ (busyBy[tid] = busyBy[tid] || {})[cur] = o; }
+        cur = addDaysISO(cur,1); guard++;
+      }
+    });
+  });
+  /* كل أيام الفترة */
+  const days = []; { let cur=F, guard=0; while(cur<=T && guard<95){ days.push(cur); cur=addDaysISO(cur,1); guard++; } }
+  const DW = ['ح','ن','ث','ر','خ','ج','س'];
+  const isOff = iso => { const d=new Date(iso+'T00:00:00').getDay(); return d===5 || d===6; };
+
+  const trainers = (state.trainers||[]).slice().sort((a,b)=>a.name.localeCompare(b.name,'ar'));
+
+  c.innerHTML = `
+  <div class="card">
+    <div style="display:flex;align-items:center;gap:9px;flex-wrap:wrap;">
+      <div class="seg">
+        ${Object.entries(spans).map(([k,v])=>`<button data-span="${k}" class="${schedRange===k?'active':''}">${v.label}</button>`).join('')}
+      </div>
+      <div class="rp-dates" style="margin:0;">
+        <div class="rp-date"><label>من</label><input id="sc_from" type="date" lang="en-GB" value="${F}"></div>
+        <div class="rp-date"><label>إلى</label><input id="sc_to" type="date" lang="en-GB" value="${T}"></div>
+      </div>
+      <span style="margin-inline-start:auto;display:inline-flex;gap:6px;">
+        <button class="btn btn-primary" id="sc_print" style="min-height:34px;font-size:12px;">${icon('printer',14)} طباعة طلبات المقدّمين</button>
+        <button class="icon-btn" id="sc_excel" title="تنزيل Excel" aria-label="تنزيل Excel" style="width:34px;height:34px;padding:0;">${icon('sheet',15)}</button>
+        <button class="btn btn-outline" id="sc_plan" style="min-height:34px;font-size:12px;">${icon('sparkles',14)} اقتراح توزيع لجهة</button>
+      </span>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>${icon('calendar',15)} أحدث الفعاليات — ${list.length} ${eventWord(list.length)}</h2>
+    ${list.length ? `<div class="tbl-scroll"><table style="font-size:12.5px;"><thead><tr>
+      <th style="width:46px;">#</th><th style="text-align:right;">الفعالية</th><th>التاريخ</th>
+      <th>الوقت</th><th>الأيام</th><th>المكان</th><th>المقدّمون</th><th>الحالة</th>
+    </tr></thead><tbody>
+      ${list.map(o=>{
+        const sc = state.schools.find(x=>x.id===o.schoolId);
+        const tn = (o.trainerIds||[]).map(id=>{const t=state.trainers.find(x=>x.id===id);return t?t.name:'';}).filter(Boolean);
+        return `<tr class="clickable" data-view="${o.id}">
+          <td><span class="badge">${o.serial}</span></td>
+          <td style="text-align:right;">${escapeHtml(o.title||'')}</td>
+          <td style="white-space:nowrap;">${fmtDate(o.date)}${o.dateTo&&o.dateTo!==o.date?` — ${fmtDate(o.dateTo)}`:''}</td>
+          <td style="white-space:nowrap;direction:ltr;">${escapeHtml(fullTimeRange(o.timeFrom,o.timeTo))}</td>
+          <td>${daysCount(o.date,o.dateTo)}</td>
+          <td style="text-align:right;">${sc?escapeHtml(sc.name):'—'}</td>
+          <td style="text-align:right;">${tn.length?escapeHtml(tn.join('، ')):'—'}</td>
+          <td>${doneBadge(o.completionStatus)}</td>
+        </tr>`;
+      }).join('')}
+    </tbody></table></div>` : `<div class="empty-state">لا توجد فعاليات في هذه الفترة</div>`}
+  </div>
+
+  <div class="card">
+    <h2>${icon('users',15)} إتاحة مقدّمي المبادرات</h2>
+    <div class="helper" style="margin-bottom:10px;">
+      <span class="lg-dot lg-free"></span> متاح
+      <span class="lg-dot lg-busy"></span> مشغول
+      <span class="lg-dot lg-off"></span> عطلة نهاية الأسبوع
+      — انقر على أي يوم مشغول لعرض الفعالية
+    </div>
+    <div class="tbl-scroll"><table class="sched-tbl"><thead><tr>
+      <th style="text-align:right;min-width:150px;">المقدّم</th>
+      ${days.map(d=>`<th class="${isOff(d)?'off':''}"><i>${DW[new Date(d+'T00:00:00').getDay()]}</i>${Number(d.slice(8,10))}</th>`).join('')}
+      <th style="min-width:64px;">مشغول</th>
+    </tr></thead><tbody>
+      ${trainers.map(t=>{
+        const bm = busyBy[t.id] || {};
+        const busyN = days.filter(d=>bm[d] && !isOff(d)).length;
+        return `<tr>
+          <td style="text-align:right;white-space:nowrap;">
+            <b>${escapeHtml(t.name)}</b>${t.phone?`<span class="helper" style="display:block;font-size:10.5px;direction:ltr;text-align:right;">${escapeHtml(t.phone)}</span>`:''}
+          </td>
+          ${days.map(d=>{
+            if(isOff(d)) return `<td class="cell off"></td>`;
+            const o = bm[d];
+            return o ? `<td class="cell busy" data-view="${o.id}" title="${escapeHtml(o.title)}">●</td>`
+                     : `<td class="cell free"></td>`;
+          }).join('')}
+          <td><b>${busyN}</b></td>
+        </tr>`;
+      }).join('') || `<tr><td colspan="${days.length+2}" class="empty-state">لا يوجد مقدّمو مبادرات</td></tr>`}
+    </tbody></table></div>
+  </div>
+
+  <div class="card">
+    <h2>${icon('clipboard',15)} الطلبات المقدَّمة لكل مقدّم مبادرة</h2>
+    ${trainers.map(t=>{
+      const mine = list.filter(o=>(o.trainerIds||[]).includes(t.id));
+      if(!mine.length) return '';
+      const reqs = {};
+      mine.forEach(o=>(o.adminRequests||[]).forEach(rid=>{
+        const r = state.adminRequestsList.find(x=>x.id===rid); if(!r) return;
+        reqs[r.name] = (reqs[r.name]||0)+1;
+      }));
+      const sorted = Object.entries(reqs).sort((a,b)=>a[0].localeCompare(b[0],'ar'));
+      return `<div style="border-top:1px solid var(--border-light);padding:11px 0;">
+        <div style="display:flex;align-items:center;gap:9px;flex-wrap:wrap;">
+          <b style="font-size:13px;">${escapeHtml(t.name)}</b>
+          ${t.phone?`<span class="helper" style="direction:ltr;">${escapeHtml(t.phone)}</span>`:''}
+          <span class="badge">${mine.length} ${eventWord(mine.length)}</span>
+        </div>
+        ${sorted.length ? `<div style="margin-top:7px;display:flex;flex-wrap:wrap;gap:5px;">
+          ${sorted.map(([n,cnt])=>`<span class="req-chip">${escapeHtml(n)}${cnt>1?` ×${cnt}`:''}</span>`).join('')}
+        </div>` : `<div class="helper" style="margin-top:5px;">لا توجد طلبات إدارية</div>`}
+      </div>`;
+    }).join('') || `<div class="empty-state">لا توجد بيانات</div>`}
+  </div>`;
+
+  /* التفاعل */
+  c.querySelectorAll('[data-span]').forEach(b=>{
+    b.onclick = ()=>{ schedRange=b.dataset.span;
+      window.__schedFrom = spans[schedRange].from; window.__schedTo = spans[schedRange].to; render(); };
+  });
+  /* تغيير "من" يضبط "إلى" تلقائيًا حسب المدى المختار */
+  const SPAN_DAYS = {week:6, month:29, past:7};
+  document.getElementById('sc_from').addEventListener('change', ()=>{
+    const v = document.getElementById('sc_from').value; if(!v) return;
+    window.__schedFrom = v;
+    window.__schedTo   = addDaysISO(v, SPAN_DAYS[schedRange] ?? 6);
+    render();
+  });
+  document.getElementById('sc_to').addEventListener('change', ()=>{
+    const v = document.getElementById('sc_to').value; if(!v) return;
+    window.__schedTo = v;
+    if(v < window.__schedFrom) window.__schedFrom = addDaysISO(v, -(SPAN_DAYS[schedRange] ?? 6));
+    render();
+  });
+  c.querySelectorAll('[data-view]').forEach(b=>{ b.onclick = ()=>viewOrderReadOnly(b.dataset.view); });
+  document.getElementById('sc_print').onclick = ()=>printTrainerRequests(F, T);
+  document.getElementById('sc_excel').onclick = ()=>exportTrainerRequests(F, T);
+  document.getElementById('sc_plan').onclick = ()=>openPlanWizard();
+}
+
+/* طباعة طلبات الفعاليات لمقدّمي المبادرات — كل طلب في سطر ومرتّب أبجديًا */
+function printTrainerRequests(from, to){
+  const list = (state.orders||[]).filter(o=>{
+    const s=o.date||''; if(!s) return false;
+    const e=o.dateTo||s;
+    return s<=to && e>=from && (o.status||'active')!=='cancelled';
+  });
+  if(!list.length){ toast('لا توجد فعاليات في هذه الفترة'); return; }
+  const rows = buildTrainerReqRows(list);
+  if(!rows.length){ toast('لا توجد طلبات لمقدّمي المبادرات في هذه الفترة'); return; }
+  doPrintDoc(buildReportDoc({
+    titleAr:'طلبات الفعاليات لمقدّمي المبادرات',
+    subtitle:`من ${fmtDate(from)} إلى ${fmtDate(to)}`,
+    kpis:[{v:rows.length,l:'📄 عدد الأسطر'},
+          {v:new Set(rows.map(r=>r[4])).size,l:'👥 المقدّمون'},
+          {v:list.length,l:'📋 الفعاليات'}],
+    headers:TRQ_HDR,
+    tableClass:'trq-tbl',
+    /* تاريخ · مكان · هاتف المشرف · الأيام · المقدّم · هاتفه · الطلب */
+    colWidths:['26mm','62mm','24mm','14mm','48mm','24mm','auto'],
+    rows: rows.map(r=>r.map(v=>escapeHtml(String(v))))
+  }), true, 'A4');
+}
+const TRQ_HDR = ['تاريخ المبادرة','مكان المبادرة','هاتف المشرف','الأيام','مقدّم المبادرة','هاتف المقدّم','الطلب المقدَّم'];
+/* صفوف الطلبات — مفرزة من الأحدث للأقدم، وكل طلب في سطر مرتّب أبجديًا */
+function buildTrainerReqRows(list){
+  const rows = [];
+  (state.trainers||[]).slice().sort((a,b)=>a.name.localeCompare(b.name,'ar')).forEach(t=>{
+    const mine = list.filter(o=>(o.trainerIds||[]).includes(t.id))
+      .sort((a,b)=>(b.date||'').localeCompare(a.date||''));   // الأحدث أولًا
+    mine.forEach(o=>{
+      const sc = state.schools.find(x=>x.id===o.schoolId);
+      const sv = sc ? (sc.supervisors||[]).find(x=>x.id===o.supervisorId) : null;
+      const reqs = (o.adminRequests||[])
+        .map(id=>{ const r=state.adminRequestsList.find(x=>x.id===id); return r?r.name:''; })
+        .filter(Boolean).sort((a,b)=>a.localeCompare(b,'ar'));
+      /* سطر لكل طلب إداري — ومن بلا طلبات يظهر بسطر واحد */
+      if(!reqs.length){
+        rows.push([fmtDate(o.date), sc?sc.name:'—', sv&&sv.phone?sv.phone:'—',
+                   daysCount(o.date,o.dateTo), t.name, t.phone||'—', '—']);
+      } else reqs.forEach(rq=>{
+        rows.push([fmtDate(o.date), sc?sc.name:'—', sv&&sv.phone?sv.phone:'—',
+                   daysCount(o.date,o.dateTo), t.name, t.phone||'—', rq]);
+      });
+    });
+  });
+  return rows;
+}
+/* تصدير نفس الجدول إلى Excel */
+function exportTrainerRequests(from, to){
+  const list = (state.orders||[]).filter(o=>{
+    const s=o.date||''; if(!s) return false;
+    const e=o.dateTo||s;
+    return s<=to && e>=from && (o.status||'active')!=='cancelled';
+  });
+  const rows = buildTrainerReqRows(list);
+  if(!rows.length){ toast('لا توجد طلبات في هذه الفترة'); return; }
+  exportToExcel('طلبات_مقدمي_المبادرات.xlsx', TRQ_HDR, rows,
+    `طلبات الفعاليات لمقدّمي المبادرات (من ${fmtDate(from)} إلى ${fmtDate(to)})`);
+}
+
 function renderOperationsCenter(c){
   const orders = (state.orders||[]).filter(o=>(o.status||'active')!=='cancelled');
   const t = todayStr();
@@ -4058,8 +4534,8 @@ function renderOrderPage(c){
     <span id="ordPageTitle" style="font-size:16px;font-weight:700;color:var(--maroon-800);white-space:nowrap;"></span>
     <span id="ordNoteBar" style="display:none;align-items:center;min-width:0;"></span>
     <div style="position:relative; margin-inline-start:auto;">
-      <input id="ord_quickFind" placeholder="🔎 ابحث برقم أمر التكليف أو عنوان المبادرة..."
-             style="width:270px; min-height:34px;" autocomplete="off">
+      <input id="ord_quickFind" placeholder="🔎 ابحث بالرقم أو العنوان أو المدرسة أو المقدّم..."
+             style="width:320px; min-height:34px;" autocomplete="off">
       <div id="ord_quickFindRes" style="display:none; position:absolute; top:calc(100% + 4px); right:0; z-index:40;
            width:340px; max-height:260px; overflow:auto; background:#fff; border:1px solid var(--line);
            border-radius:10px; box-shadow:var(--shadow);"></div>
@@ -4117,13 +4593,20 @@ function renderOrderPage(c){
   /* البحث بتاريخ: يعرض فعاليات اليوم المحدد */
   const _df = document.getElementById('ord_dateFind');
   if(_df) _df.onclick = ()=>{
-    openModal('البحث بتاريخ', [{name:'d', label:'اختر التاريخ', type:'date'}], v=>{
-      const d = v.d;
-      if(!d){ toast('اختر تاريخًا'); return false; }
+    openModal('البحث بفترة', [
+      {name:'d1', label:'من تاريخ', type:'date'},
+      {name:'d2', label:'إلى تاريخ', type:'date'},
+    ], v=>{
+      let d1 = v.d1, d2 = v.d2;
+      if(!d1 && !d2){ toast('اختر تاريخًا واحدًا على الأقل'); return false; }
+      if(!d1) d1 = d2; if(!d2) d2 = d1;
+      if(d2 < d1){ const t=d1; d1=d2; d2=t; }          // ترتيب تلقائي
+      /* أي تقاطع بين فترة الفعالية والفترة المطلوبة */
       const hits = (state.orders||[]).filter(o=>{
-        const s=o.date||'', e=o.dateTo||o.date||'';
-        return s && d>=s && d<=e;
-      }).sort((a,b)=>(a.timeFrom||'').localeCompare(b.timeFrom||''));
+        const s=o.date||''; if(!s) return false;
+        const e=o.dateTo||s;
+        return s <= d2 && e >= d1;
+      }).sort((a,b)=>(a.date||'').localeCompare(b.date||'') || (a.timeFrom||'').localeCompare(b.timeFrom||''));
       const body = hits.length
         ? `<div style="max-height:340px;overflow:auto;">${hits.map(o=>{
             const sc = state.schools.find(x=>x.id===o.schoolId);
@@ -4132,15 +4615,16 @@ function renderOrderPage(c){
               <span class="request-mark mark-teal">${icon('fileText',15)}</span>
               <span style="min-width:0;flex:1;text-align:right;">
                 <span class="ar-title">${escapeHtml(o.title)}</span>
-                <span class="ar-sub">${o.serial} · ${sc?escapeHtml(sc.name):'—'} · ${o.timeFrom||''}${tn?' · '+escapeHtml(tn):''}</span>
+                <span class="ar-sub">${o.serial} · ${fmtDate(o.date)} · ${sc?escapeHtml(sc.name):'—'} · ${o.timeFrom||''}${tn?' · '+escapeHtml(tn):''}</span>
               </span>
               ${doneBadge(o.completionStatus)}
             </button>`;
           }).join('')}</div>`
-        : `<div class="empty-state" style="padding:26px;">لا توجد فعاليات في ${fmtDate(d)}</div>`;
+        : `<div class="empty-state" style="padding:26px;">لا توجد فعاليات في هذه الفترة</div>`;
       /* نؤجّل العرض لأن openModal يُغلق النافذة بعد تنفيذ onSubmit */
       setTimeout(()=>{
-        showInfoModal(`فعاليات ${fmtDate(d)} — ${hits.length} ${eventWord(hits.length)}`, body, box=>{
+        const ttl = (d1===d2) ? `فعاليات ${fmtDate(d1)}` : `من ${fmtDate(d1)} إلى ${fmtDate(d2)}`;
+        showInfoModal(`${ttl} — ${hits.length} ${eventWord(hits.length)}`, body, box=>{
           box.style.maxWidth = '640px';
           box.querySelectorAll('[data-open]').forEach(b=>{
             b.onclick=()=>{ closeModal(); editOrder(b.dataset.open); };
@@ -4153,8 +4637,19 @@ function renderOrderPage(c){
   qf.addEventListener('input', ()=>{
     const q = qf.value.trim();
     if(!q){ qfr.style.display='none'; qfr.innerHTML=''; return; }
-    const hits = state.orders.filter(o=> String(o.serial).includes(q) || (o.title||'').includes(q))
-                             .sort((a,b)=>b.serial-a.serial).slice(0,12);
+    /* تطبيع عربي ليطابق رغم اختلاف الهمزات والتاء المربوطة */
+    const nz = s => String(s||'').replace(/[\u064B-\u0652\u0640]/g,'')
+      .replace(/[أإآا]/g,'ا').replace(/[ىي]/g,'ي').replace(/ة/g,'ه')
+      .replace(/\s+/g,' ').trim().toLowerCase();
+    const nq = nz(q);
+    const hits = state.orders.filter(o=>{
+      if(String(o.serial).includes(q)) return true;
+      const sc = state.schools.find(x=>x.id===o.schoolId);
+      const sv = sc ? (sc.supervisors||[]).find(x=>x.id===o.supervisorId) : null;
+      const trs = (o.trainerIds||[]).map(id=>{ const t=state.trainers.find(y=>y.id===id); return t?t.name:''; });
+      const hay = nz([o.title, sc&&sc.name, sv&&sv.name, ...trs].filter(Boolean).join(' '));
+      return hay.includes(nq);
+    }).sort((a,b)=>b.serial-a.serial).slice(0,12);
     qfr.innerHTML = hits.length ? hits.map(o=>{
       const s = state.schools.find(x=>x.id===o.schoolId);
       return `<div class="qf-item" data-id="${o.id}" style="padding:8px 10px; cursor:pointer; border-bottom:1px solid var(--line);">
@@ -4210,7 +4705,7 @@ function renderOrderPage(c){
             <option value="serialAsc">رقم التكليف (تصاعدي)</option>
           </select>
         </div>
-        <button class="icon-btn" id="ord_dateFind" data-tip="البحث بتاريخ" title="البحث بتاريخ" aria-label="البحث بتاريخ" style="width:26px;height:26px;padding:0;min-width:26px;">${icon('calendar',13)}</button>
+        <button class="icon-btn" id="ord_dateFind" data-tip="البحث بفترة" title="البحث بفترة" aria-label="البحث بفترة" style="width:26px;height:26px;padding:0;min-width:26px;">${icon('calendar',13)}</button>
       <button class="icon-btn" id="ord_clearFilter" data-tip="مسح التصفية" title="مسح التصفية" aria-label="مسح التصفية" style="width:26px;height:26px;padding:0;min-width:26px;">${icon('x',13)}</button>
       </div>
       <div id="ord_listResult"></div></div>`;
@@ -6056,15 +6551,23 @@ async function buildOrderPrintDoc(o, opts, copyLabel){
   html += printDocClose();
   return html;
 }
+/* اسم ملف التنزيل: عنوان المبادرة - اسم المدرسة */
+function orderFileName(o){
+  const sc = state.schools.find(x=>x.id===o.schoolId);
+  const clean = s => String(s||'').replace(/[\\/:*?"<>|]/g,'-').replace(/\s+/g,' ').trim();
+  const t = clean(o.title) || ('أمر تكليف ' + o.serial);
+  const s = sc ? clean(sc.name) : '';
+  return s ? `${t} - ${s}` : t;
+}
 async function printOrderSchoolCopy(id){
   const o=state.orders.find(x=>x.id===id); if(!o) return;
   const html = await buildOrderPrintDoc(o, {showAdminNote:false}, 'نسخة الجهة الطالبة');
-  doPrintDoc(html, true, 'A4', o.title || ('أمر تكليف '+o.serial));
+  doPrintDoc(html, true, 'A4', orderFileName(o));
 }
 async function printOrderAdminCopy(id){
   const o=state.orders.find(x=>x.id===id); if(!o) return;
   const html = await buildOrderPrintDoc(o, {}, 'نسخة الإدارة (كاملة)');
-  doPrintDoc(html, true, 'A4', o.title || ('أمر تكليف '+o.serial));
+  doPrintDoc(html, true, 'A4', orderFileName(o));
 }
 async function openQrCodeModal(id){
   const o = state.orders.find(x=>x.id===id); if(!o) return;
@@ -6108,6 +6611,16 @@ function dailyReportTable(list){
 /* أنماط خاصة بالتقارير فقط — لا تمسّ نسخة الجهة الطالبة/الإدارة إطلاقًا
    لأنها تُبنى عبر buildOrderPrintDoc ولا تحمل الفئة rep-doc */
 const REPORT_STYLES = `<style>
+  /* تقرير طلبات المقدّمين: أعمدة مضبوطة والتاريخ داخل إطاره */
+  table.trq-tbl{table-layout:fixed !important;}
+  table.trq-tbl th, table.trq-tbl td{white-space:normal; overflow-wrap:anywhere; padding:3px 4px;}
+  table.trq-tbl td:nth-child(1){white-space:nowrap; direction:ltr; text-align:center; font-size:11px;}
+  table.trq-tbl td:nth-child(3),
+  table.trq-tbl td:nth-child(6){white-space:nowrap; direction:ltr; text-align:center; font-size:11px;}
+  table.trq-tbl td:nth-child(4){text-align:center; font-weight:700;}
+  table.trq-tbl td:nth-child(2),
+  table.trq-tbl td:nth-child(5),
+  table.trq-tbl td:nth-child(7){text-align:right;}
   .rep-doc{font-size:16px;}
   /* عمود التاريخ: (من/إلى) متجاوران بسطر واحد بلا زيادة ارتفاع الصف */
   .prd2{display:inline-flex; gap:8px; align-items:stretch; white-space:nowrap;}
@@ -6251,7 +6764,10 @@ function buildReportDoc(opts){
     html += titleBlk;
   }
   if(opts.headers && opts.rows){
-    html += `<table><thead><tr>${opts.headers.map(h=>`<th>${String(h).trim().startsWith('<') ? h : escapeHtml(h)}</th>`).join('')}</tr></thead><tbody>`;
+    /* أعراض أعمدة صريحة عند تمريرها — تتجاوز التوزيع التلقائي */
+    const colg = (opts.colWidths && opts.colWidths.length)
+      ? `<colgroup>${opts.colWidths.map(w=>`<col style="width:${w}">`).join('')}</colgroup>` : '';
+    html += `<table class="${opts.tableClass||''}">${colg}<thead><tr>${opts.headers.map(h=>`<th>${String(h).trim().startsWith('<') ? h : escapeHtml(h)}</th>`).join('')}</tr></thead><tbody>`;
     html += opts.rows.length ? opts.rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('') : `<tr><td colspan="${opts.headers.length}" style="text-align:center;color:#999;padding:16px;">لا توجد بيانات</td></tr>`;
     html += `</tbody></table>`;
   }
@@ -6918,23 +7434,55 @@ function renderReportsPage(c){
           <div class="rp-date"><label>من تاريخ</label><input id="rl_from" type="date" lang="en-GB"></div>
           <div class="rp-date"><label>إلى تاريخ</label><input id="rl_to" type="date" lang="en-GB"></div>
         </div>
-        <div class="rp-title"><span class="rp-ic">📄</span>
-        <select id="rl_type">
-          <option value="">— اختر نوع التقرير —</option>
-          <option value="trainer">تقرير مقدم الفعالية</option>
-          <option value="school">تقرير فعاليات مدرسة خلال فترة</option>
-          <option value="bypath">تقرير حسب مسار / مجال المبادرة</option>
-          <option value="fieldSum">تقرير مجال المبادرة (ملخّص)</option>
-          <option value="topPrograms">أكثر البرامج طلبًا (المجال والمسار والعناوين)</option>
-          <option value="periodSum">الفعاليات والطلبات حسب الفترة</option>
-          <option value="quran">تقرير الأنشطة القرآنية — روح والرحيق</option>
-          <option value="stats">الإحصائيات</option>
-          <option value="adminReq">الطلبات الإدارية</option>
-          <option value="eval">النتائج والإنجازات</option>
-          <option value="dist">التوزيعات</option>
-        </select></div>
+        <div style="margin-bottom:8px;">
+          <input id="rl_search" placeholder="ابحث عن نوع التقرير..." autocomplete="off"
+            style="width:100%;box-sizing:border-box;">
+        </div>
+        <div class="rt-list" id="rl_list">
+          ${[
+            ['trainer','تقرير مقدم الفعالية','users','فعاليات مقدّم محدد خلال فترة'],
+            ['school','تقرير فعاليات مدرسة','school','فعاليات جهة أو مدرسة خلال فترة'],
+            ['bypath','حسب مسار / مجال المبادرة','activity','تصفية حسب المسار أو المجال'],
+            ['fieldSum','مجال المبادرة (ملخّص)','layers','إجماليات كل مجال'],
+            ['topPrograms','أكثر البرامج طلبًا','barChart','المجال والمسار والعناوين المتشابهة'],
+            ['periodSum','الفعاليات والطلبات حسب الفترة','calendar','تجميع يومي وأسبوعي وشهري وسنوي'],
+            ['quran','الأنشطة القرآنية','bookOpen','برنامجا روح والرحيق'],
+            ['stats','الإحصائيات','barChart','مؤشرات عامة'],
+            ['adminReq','الطلبات الإدارية','clipboard','الطلبات المرتبطة بالفعاليات'],
+            ['eval','النتائج والإنجازات','checkCircle','تقييمات وإنجاز الفعاليات'],
+            ['dist','التوزيعات','sheet','توزيع الفعاليات على المقدّمين'],
+          ].map(t=>`<button type="button" class="rt-item" data-rt="${t[0]}"
+              data-find="${escapeHtml((t[1]+' '+t[3]).toLowerCase())}">
+            <span class="rt-ic">${icon(t[2],15)}</span>
+            <span class="rt-body"><b>${escapeHtml(t[1])}</b><i>${escapeHtml(t[3])}</i></span>
+            <span class="rt-go">${icon('chevronLeft',14)}</span>
+          </button>`).join('')}
+        </div>
+        <div class="helper" id="rl_none" style="display:none;padding:14px;text-align:center;">لا يوجد تقرير مطابق</div>
+        <select id="rl_type" style="display:none;"><option value=""></option>
+          ${['trainer','school','bypath','fieldSum','topPrograms','periodSum','quran','stats','adminReq','eval','dist']
+            .map(v=>`<option value="${v}">${v}</option>`).join('')}
+        </select>
       </div>
     </div>`;
+    /* بحث فوري في أنواع التقارير */
+    (function(){
+      const q = document.getElementById('rl_search');
+      const items = Array.from(document.querySelectorAll('#rl_list .rt-item'));
+      const none = document.getElementById('rl_none');
+      const upd = ()=>{
+        const v = (q.value||'').trim().toLowerCase();
+        let n=0;
+        items.forEach(b=>{ const ok = !v || (b.dataset.find||'').includes(v);
+          b.style.display = ok ? '' : 'none'; if(ok) n++; });
+        none.style.display = n ? 'none' : 'block';
+      };
+      q.addEventListener('input', upd);
+      items.forEach(b=>{ b.onclick = ()=>{
+        const sel = document.getElementById('rl_type');
+        sel.value = b.dataset.rt; sel.onchange();
+      }; });
+    })();
     document.getElementById('rl_type').onchange=()=>{
       if(!document.getElementById('rl_type').value) return;
       const from = document.getElementById('rl_from').value, to = document.getElementById('rl_to').value;
