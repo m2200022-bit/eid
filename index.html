@@ -1928,6 +1928,31 @@
     .tt-meta em:nth-child(n+4){display:none;}
   }
 
+  /* ══════════════════════════════════════════════════════════════
+     إظهار كل المدخلات بلون أسود واضح — يلغي طبقات الإخفاء السابقة
+     ══════════════════════════════════════════════════════════════ */
+  .glow-card input, .glow-card select, .glow-card textarea,
+  .glow-card .dwrap > input[type="date"], .glow-card .twrap > input[type="time"]{
+    color:#111 !important; -webkit-text-fill-color:#111 !important; opacity:1 !important;}
+  .glow-card .dwrap > input[type="date"]::-webkit-datetime-edit,
+  .glow-card .twrap > input[type="time"]::-webkit-datetime-edit{
+    color:#111 !important; -webkit-text-fill-color:#111 !important;}
+  .glow-card input::placeholder, .glow-card textarea::placeholder{
+    color:#9AA0A6 !important; -webkit-text-fill-color:#9AA0A6 !important;}
+  /* طبقات العرض المزدوجة تُخفى — القيمة الأصلية هي الظاهرة */
+  .glow-card .dview, .glow-card .tview{display:none !important;}
+  .glow-card .dwrap, .glow-card .twrap{position:static; height:auto;}
+  /* الأرقام والتواريخ والأوقات بمحاذاة واضحة */
+  .glow-card input[type="number"], .glow-card input.num,
+  .glow-card input[type="date"], .glow-card input[type="time"]{
+    direction:ltr; text-align:right; font-weight:700 !important;
+    font-variant-numeric:lining-nums tabular-nums; font-feature-settings:"lnum";}
+  .glow-card input[type="date"]::-webkit-calendar-picker-indicator,
+  .glow-card input[type="time"]::-webkit-calendar-picker-indicator{
+    opacity:.65; cursor:pointer; margin-inline-start:2px;}
+  .glow-card input[type="date"]::-webkit-calendar-picker-indicator:hover,
+  .glow-card input[type="time"]::-webkit-calendar-picker-indicator:hover{opacity:1;}
+
 </style>
 </head>
 <body>
@@ -6901,6 +6926,7 @@ function renderReportsPage(c){
           <option value="bypath">تقرير حسب مسار / مجال المبادرة</option>
           <option value="fieldSum">تقرير مجال المبادرة (ملخّص)</option>
           <option value="topPrograms">أكثر البرامج طلبًا (المجال والمسار والعناوين)</option>
+          <option value="periodSum">الفعاليات والطلبات حسب الفترة</option>
           <option value="quran">تقرير الأنشطة القرآنية — روح والرحيق</option>
           <option value="stats">الإحصائيات</option>
           <option value="adminReq">الطلبات الإدارية</option>
@@ -6918,6 +6944,7 @@ function renderReportsPage(c){
       else if(type==='bypath'){ mode='bypath'; drawByPath(); setActive(); if(from) document.getElementById('bp_from').value=from; if(to) document.getElementById('bp_to').value=to; }
       else if(type==='fieldSum'){ mode='fieldSum'; drawFieldSummary(); setActive(); if(from) document.getElementById('fs_from').value=from; if(to) document.getElementById('fs_to').value=to; document.getElementById('fs_go').click(); }
       else if(type==='quran'){ currentPage='quranActivities'; quranSubTab='report'; render(); }
+      else if(type==='periodSum'){ mode='periodSum'; drawPeriodSum(); setActive(); if(from) document.getElementById('ps_from').value=from; if(to) document.getElementById('ps_to').value=to; document.getElementById('ps_go').click(); }
       else if(type==='topPrograms'){ mode='topPrograms'; drawTopPrograms(); setActive(); if(from) document.getElementById('tp_from').value=from; if(to) document.getElementById('tp_to').value=to; document.getElementById('tp_go').click(); }
       else if(type==='stats'){ mode='stats'; renderStatsPage(document.getElementById('reportContent')); setActive(); }
       else if(type==='eval'){ mode='eval'; drawEval(); setActive(); if(from) document.getElementById('ev_from').value=from; if(to) document.getElementById('ev_to').value=to; }
@@ -6934,6 +6961,161 @@ function renderReportsPage(c){
   document.getElementById('rt_general').onclick=()=>{mode='general'; drawGeneral(); setActive();};
   document.getElementById('rt_bypath').onclick=()=>{mode='bypath'; drawByPath(); setActive();};
   document.getElementById('rt_stats').onclick=()=>{mode='stats'; renderStatsPage(document.getElementById('reportContent')); setActive();};
+
+  /* ══════════════════════════════════════════════════════════════════
+     الفعاليات والطلبات حسب الفترة — تجميع يومي/أسبوعي/شهري/ربع/سنوي
+     ══════════════════════════════════════════════════════════════════ */
+  function drawPeriodSum(){
+    const box = document.getElementById('reportContent');
+    box.innerHTML = `<div class="card">
+      <h2>الفعاليات والطلبات حسب الفترة</h2>
+      <div class="rp-dates" style="margin-bottom:12px;">
+        <div class="rp-date"><label>من تاريخ</label><input id="ps_from" type="date" lang="en-GB"></div>
+        <div class="rp-date"><label>إلى تاريخ</label><input id="ps_to" type="date" lang="en-GB"></div>
+        <div class="rp-date"><label>التجميع</label>
+          <select id="ps_group">
+            <option value="day">يومي</option>
+            <option value="week">أسبوعي</option>
+            <option value="month" selected>شهري</option>
+            <option value="quarter">ربع سنوي</option>
+            <option value="year">سنوي</option>
+          </select></div>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
+        <button class="btn btn-primary" id="ps_go">${icon('barChart',14)} عرض</button>
+        <button class="icon-btn" id="ps_print" title="طباعة" aria-label="طباعة" style="width:28px;height:28px;padding:0;">${icon('printer',14)}</button>
+        <button class="icon-btn" id="ps_pdf" title="تنزيل PDF" aria-label="تنزيل PDF" style="width:28px;height:28px;padding:0;">${icon('download',14)}</button>
+        <button class="icon-btn" id="ps_excel" title="تنزيل Excel" aria-label="تنزيل Excel" style="width:28px;height:28px;padding:0;">${icon('sheet',14)}</button>
+      </div>
+      <div id="ps_result" style="margin-top:14px;"></div>
+    </div>`;
+
+    const MONTHS = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+    function keyOf(iso, g){
+      if(!iso) return '—';
+      const y = iso.slice(0,4), m = Number(iso.slice(5,7)), d = Number(iso.slice(8,10));
+      if(g==='year')    return y;
+      if(g==='quarter') return `${y} — الربع ${Math.ceil(m/3)}`;
+      if(g==='month')   return `${MONTHS[m-1]} ${y}`;
+      if(g==='week'){
+        const dt = new Date(iso+'T00:00:00');
+        const day = dt.getDay();                 // الأحد = 0 (بداية الأسبوع)
+        const s = addDaysISO(iso, -day), e = addDaysISO(s, 6);
+        return `${fmtDate(s)} — ${fmtDate(e)}`;
+      }
+      return fmtDate(iso);
+    }
+    function sortKey(iso, g){
+      if(!iso) return 'zzz';
+      if(g==='week'){ const dt=new Date(iso+'T00:00:00'); return addDaysISO(iso, -dt.getDay()); }
+      if(g==='month')   return iso.slice(0,7);
+      if(g==='quarter') return `${iso.slice(0,4)}-Q${Math.ceil(Number(iso.slice(5,7))/3)}`;
+      if(g==='year')    return iso.slice(0,4);
+      return iso;
+    }
+    function gather(){
+      const from = document.getElementById('ps_from').value;
+      const to   = document.getElementById('ps_to').value;
+      const g    = document.getElementById('ps_group').value;
+      const list = (state.orders||[]).filter(o=>{
+        const s=o.date||''; if(!s) return false;
+        const e=o.dateTo||s;
+        if(from && e<from) return false;
+        if(to && s>to) return false;
+        return true;
+      });
+      const map = new Map();
+      list.forEach(o=>{
+        const k = keyOf(o.date, g), sk = sortKey(o.date, g);
+        if(!map.has(k)) map.set(k, {k, sk, n:0, days:0, hours:0, people:0,
+          reqs:0, schools:new Set(), trainers:new Set(), done:0, cancelled:0, postponed:0});
+        const r = map.get(k);
+        r.n++;
+        r.days   += daysCount(o.date, o.dateTo);
+        r.hours  += computeHours(o.timeFrom, o.timeTo, o.date, o.dateTo);
+        r.people += Number(o.participantsCount)||0;
+        r.reqs   += (o.adminRequests||[]).length;
+        if(o.schoolId) r.schools.add(o.schoolId);
+        (o.trainerIds||[]).forEach(t=>r.trainers.add(t));
+        if(o.completionStatus==='تم') r.done++;
+        if(o.status==='cancelled') r.cancelled++;
+        if(o.status==='postponed') r.postponed++;
+      });
+      const rows = Array.from(map.values()).sort((a,b)=>a.sk.localeCompare(b.sk));
+      rows.forEach(r=>{ r.hours = Math.round(r.hours*10)/10; });
+      const tot = rows.reduce((a,r)=>({
+        n:a.n+r.n, days:a.days+r.days, hours:a.hours+r.hours, people:a.people+r.people,
+        reqs:a.reqs+r.reqs, done:a.done+r.done, cancelled:a.cancelled+r.cancelled, postponed:a.postponed+r.postponed
+      }), {n:0,days:0,hours:0,people:0,reqs:0,done:0,cancelled:0,postponed:0});
+      tot.hours = Math.round(tot.hours*10)/10;
+      tot.schools  = new Set(list.map(o=>o.schoolId).filter(Boolean)).size;
+      tot.trainers = new Set(list.flatMap(o=>o.trainerIds||[])).size;
+      return {rows, tot, from, to, g, list};
+    }
+    const HDR = ['الفترة','الفعاليات','الأيام','الساعات','المستهدفون','الطلبات الإدارية','الجهات','المنفذون','منجزة','مؤجلة','ملغاة'];
+    function rowsOf(d){ return d.rows.map(r=>[r.k, r.n, r.days, r.hours, r.people, r.reqs,
+      r.schools.size, r.trainers.size, r.done, r.postponed, r.cancelled]); }
+    function render(){
+      const d = gather();
+      const el = document.getElementById('ps_result');
+      if(!d.rows.length){ el.innerHTML = `<div class="empty-state">لا توجد فعاليات ضمن هذه الفترة</div>`; return; }
+      const maxN = Math.max(...d.rows.map(r=>r.n), 1);
+      el.innerHTML = `
+        <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin:0 0 14px;">
+          ${[['clipboard','الفعاليات',d.tot.n],['calendar','الأيام',d.tot.days],['clock','الساعات',d.tot.hours],
+             ['users','المستهدفون',d.tot.people],['clipboard','طلبات إدارية',d.tot.reqs],
+             ['school','الجهات',d.tot.schools],['users','المنفذون',d.tot.trainers],['checkCircle','منجزة',d.tot.done]]
+            .map(([ic,l,v])=>`<div style="background:#fff;border:1px solid var(--border-c);border-radius:12px;padding:11px;text-align:center;">
+              <div style="width:30px;height:30px;margin:0 auto 6px;border-radius:9px;background:var(--gold-l);
+                color:var(--gold-d);display:flex;align-items:center;justify-content:center;">${icon(ic,15)}</div>
+              <div style="font-family:'Space Mono',monospace;font-size:20px;font-weight:800;color:var(--heading-text);">${v}</div>
+              <div style="font-size:11px;color:var(--muted-text);margin-top:2px;">${escapeHtml(l)}</div>
+            </div>`).join('')}
+        </div>
+        <table class="rep-table" style="font-size:12.5px;"><thead><tr>
+          <th style="text-align:right;">الفترة</th><th>التوزيع</th>
+          ${HDR.slice(1).map(x=>`<th>${escapeHtml(x)}</th>`).join('')}
+        </tr></thead><tbody>
+          ${d.rows.map(r=>`<tr>
+            <td style="text-align:right;white-space:nowrap;">${escapeHtml(r.k)}</td>
+            <td style="width:20%;"><div style="height:7px;background:var(--sand-200);border-radius:999px;overflow:hidden;">
+              <div style="width:${Math.round(r.n/maxN*100)}%;height:100%;background:var(--gold);border-radius:999px;"></div></div></td>
+            <td><b>${r.n}</b></td><td>${r.days}</td><td>${r.hours}</td><td>${r.people}</td><td>${r.reqs}</td>
+            <td>${r.schools.size}</td><td>${r.trainers.size}</td>
+            <td>${r.done}</td><td>${r.postponed}</td><td>${r.cancelled}</td>
+          </tr>`).join('')}
+        </tbody><tfoot><tr style="font-weight:700;background:var(--sand-100);">
+          <td style="text-align:right;">الإجمالي</td><td></td>
+          <td>${d.tot.n}</td><td>${d.tot.days}</td><td>${d.tot.hours}</td><td>${d.tot.people}</td>
+          <td>${d.tot.reqs}</td><td>${d.tot.schools}</td><td>${d.tot.trainers}</td>
+          <td>${d.tot.done}</td><td>${d.tot.postponed}</td><td>${d.tot.cancelled}</td>
+        </tr></tfoot></table>`;
+      enhanceReportTable(el);
+    }
+    document.getElementById('ps_go').onclick = render;
+    ['ps_from','ps_to','ps_group'].forEach(id=>document.getElementById(id).addEventListener('change', render));
+    function printIt(){
+      const d = gather();
+      if(!d.rows.length){ toast('لا توجد بيانات ضمن هذه الفترة'); return; }
+      doPrintDoc(buildReportDoc({
+        titleAr:'الفعاليات والطلبات حسب الفترة',
+        subtitle:`من ${d.from?fmtDate(d.from):'—'} إلى ${d.to?fmtDate(d.to):'—'}`,
+        kpis:[{v:d.tot.n,l:'📋 الفعاليات'},{v:d.tot.hours,l:'⏱ الساعات'},
+              {v:d.tot.people,l:'👥 المستهدفون'},{v:d.tot.reqs,l:'📄 الطلبات الإدارية'}],
+        headers:HDR,
+        rows: rowsOf(d).map(r=>r.map(v=>escapeHtml(String(v))))
+      }), true, 'A4');
+    }
+    document.getElementById('ps_print').onclick = printIt;
+    document.getElementById('ps_pdf').onclick   = printIt;
+    document.getElementById('ps_excel').onclick = ()=>{
+      const d = gather();
+      if(!d.rows.length){ toast('لا توجد بيانات ضمن هذه الفترة'); return; }
+      exportToExcel('الفعاليات_حسب_الفترة.xlsx', HDR, rowsOf(d),
+        `الفعاليات والطلبات حسب الفترة (من ${d.from?fmtDate(d.from):'—'} إلى ${d.to?fmtDate(d.to):'—'})`);
+    };
+    render();
+  }
 
   /* ══════════════════════════════════════════════════════════════════
      أكثر البرامج طلبًا — حسب المجال والمسار والعناوين
