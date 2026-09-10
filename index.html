@@ -1123,8 +1123,13 @@
 
   /* ══════════ أقسام مرقّمة (كالنموذج المرجعي) ══════════ */
   /* نتيجة التقرير بجوار الخيارات على الشاشات الواسعة */
-  .rep-split{display:grid; grid-template-columns:minmax(260px,340px) minmax(0,1fr); gap:16px; align-items:start;}
-  @media (max-width:1000px){ .rep-split{grid-template-columns:1fr;} }
+  /* خيارات التقرير فوق والنتائج أسفلها بعرض كامل — مساحة أكبر للنتائج */
+  .rep-split{display:block;}
+  .rep-split > .card:first-child{margin-bottom:12px;}
+  .rep-split > .card:first-child .fgrid{display:flex !important; flex-wrap:wrap;
+    align-items:flex-end; gap:10px 12px !important; max-width:none !important;}
+  .rep-split > .card:first-child .fgrid > .fbox{flex:0 0 auto; width:180px;}
+  .rep-split > #qr_result{width:100%;}
   .sec-card .fbox{padding:8px 11px;}
   .sec-card .fbox input, .sec-card .fbox select{min-height:26px; font-size:13.5px;}
   .sec-card .fbox > label{font-size:12px; margin-bottom:5px;}
@@ -2018,6 +2023,77 @@
   /* شارة المشغول تعرض نطاق وقته */
   .opt-tag.busy{direction:ltr; unicode-bidi:isolate; font-size:9.5px; padding:1px 6px;}
   .opt-row.is-busy .opt-tag.busy{white-space:nowrap;}
+  /* ══════════ شريط أدوات الطلبات: بحث وتصفية وفرز بلا فواصل ══════════ */
+  .ord-bar{display:flex; align-items:flex-end; gap:0; flex-wrap:wrap; margin-bottom:14px;}
+  .ord-bar > *{margin:0 !important;}
+  .ord-find{flex:1 1 260px; min-width:220px;}
+  .ord-find input{width:100%; min-height:38px !important; box-sizing:border-box;
+    border-radius:9px 0 0 9px !important; border-inline-end:none !important;}
+  .ord-bar .field label{font-size:11px !important; margin-bottom:4px !important; padding-inline-start:9px;}
+  .ord-bar select{min-height:38px !important; border-radius:0 !important;
+    border-inline-end:none !important; width:auto !important;}
+  .ord-bar .icon-btn{width:38px !important; height:38px !important; padding:0 !important;
+    border:1px solid var(--line) !important; border-radius:0 9px 9px 0 !important;
+    background:#fff; align-self:flex-end;}
+  .ord-bar .icon-btn:hover{background:var(--gold-l); color:var(--gold-d);}
+  .ord-bar select:focus, .ord-find input:focus{position:relative; z-index:2;}
+  @media (max-width:760px){
+    .ord-bar{gap:8px;}
+    .ord-bar > *{width:100%;}
+    .ord-find input, .ord-bar select, .ord-bar .icon-btn{border-radius:9px !important;
+      border-inline-end:1px solid var(--line) !important; width:100% !important;}
+  }
+
+  /* ══════════ الأنشطة القرآنية: إطار بنّي ومربعات بعرض المدخلات ══════════ */
+  .sec-card .fbox input, .sec-card .fbox select, .sec-card .fbox textarea{
+    border:1.5px solid #C4A88C !important; border-radius:9px !important;
+    background:#fff !important; color:#111 !important;}
+  .sec-card .fbox input:focus, .sec-card .fbox select:focus{
+    border-color:#8A6C4F !important; box-shadow:0 0 0 3px rgba(196,168,140,.22) !important;}
+  .sec-card .fbox > label{color:#6B4F3A !important;}
+  /* عرض كل مربع حسب مدخله */
+  .sec-card .fgrid{display:flex !important; flex-wrap:wrap; gap:10px 12px !important;}
+  .sec-card .fgrid > .fbox{flex:0 0 auto;}
+  .sec-card .fbox:has(#qa_program){width:190px;}
+  .sec-card .fbox:has(#qa_month){width:165px;}
+  .sec-card .fbox:has(#qa_from), .sec-card .fbox:has(#qa_to){width:165px;}
+  .sec-card .fbox:has(#qa_days){width:120px;}
+  .sec-card .fbox:has(#qa_method){width:170px;}
+  .sec-card .fbox:has(#qa_teachers), .sec-card .fbox:has(#qa_students){width:150px;}
+  .sec-card .fbox:has(#qa_memPages), .sec-card .fbox:has(#qa_revPages),
+  .sec-card .fbox:has(#qa_memParts), .sec-card .fbox:has(#qa_revParts){width:160px;}
+  .sec-card .fbox:has(#qa_achieved), .sec-card .fbox:has(#qa_target),
+  .sec-card .fbox:has(#qa_pct){width:160px;}
+  /* التاريخ والمنتقي يبدآن من اليمين */
+  .sec-card .fbox input[type="date"], .sec-card .fbox input[type="month"]{
+    direction:rtl; text-align:right; padding-inline-start:6px !important;}
+  .sec-card .fbox input[type="date"]::-webkit-calendar-picker-indicator,
+  .sec-card .fbox input[type="month"]::-webkit-calendar-picker-indicator{
+    margin-inline:0 6px; order:-1;}
+  .sec-card .fbox input[type="number"]{direction:ltr; text-align:right;}
+  @media (max-width:700px){
+    .sec-card .fgrid > .fbox{width:100% !important;}
+  }
+
+  /* التاريخ في نموذج الأنشطة القرآنية يبدأ من اليمين مع منتقيه */
+  .sec-card .fbox .dwrap, .sec-card .fbox .twrap{direction:rtl;}
+  .sec-card input[type="date"], .sec-card input[type="month"],
+  #qr_result input[type="date"], #qr_result input[type="month"],
+  .rep-split input[type="date"], .rep-split input[type="month"]{
+    direction:rtl !important; text-align:right !important;
+    padding-inline-start:6px !important; padding-inline-end:10px !important;}
+  .sec-card input[type="date"]::-webkit-calendar-picker-indicator,
+  .sec-card input[type="month"]::-webkit-calendar-picker-indicator,
+  .rep-split input[type="date"]::-webkit-calendar-picker-indicator,
+  .rep-split input[type="month"]::-webkit-calendar-picker-indicator{
+    order:-1; margin-inline:0 7px; opacity:.7; cursor:pointer;}
+  .sec-card input[type="date"]::-webkit-datetime-edit,
+  .sec-card input[type="month"]::-webkit-datetime-edit{text-align:right; direction:ltr;}
+  /* نتائج التقرير القرآني بعرض كامل وجدول مضغوط */
+  #qr_result table{width:100%; font-size:12px;}
+  #qr_result table th{padding:6px 5px !important; font-size:11px;}
+  #qr_result table td{padding:5px !important;}
+
 </style>
 </head>
 <body>
@@ -4593,49 +4669,6 @@ function renderOrderPage(c){
       ? (ed ? 'تعديل فعاليات ومبادرات — رقم '+ed.serial : 'فعاليات ومبادرات')
       : '';
   }
-  /* البحث بتاريخ: يعرض فعاليات اليوم المحدد */
-  const _df = document.getElementById('ord_dateFind');
-  if(_df) _df.onclick = ()=>{
-    openModal('البحث بفترة', [
-      {name:'d1', label:'من تاريخ', type:'date'},
-      {name:'d2', label:'إلى تاريخ', type:'date'},
-    ], v=>{
-      let d1 = v.d1, d2 = v.d2;
-      if(!d1 && !d2){ toast('اختر تاريخًا واحدًا على الأقل'); return false; }
-      if(!d1) d1 = d2; if(!d2) d2 = d1;
-      if(d2 < d1){ const t=d1; d1=d2; d2=t; }          // ترتيب تلقائي
-      /* أي تقاطع بين فترة الفعالية والفترة المطلوبة */
-      const hits = (state.orders||[]).filter(o=>{
-        const s=o.date||''; if(!s) return false;
-        const e=o.dateTo||s;
-        return s <= d2 && e >= d1;
-      }).sort((a,b)=>(a.date||'').localeCompare(b.date||'') || (a.timeFrom||'').localeCompare(b.timeFrom||''));
-      const body = hits.length
-        ? `<div style="max-height:340px;overflow:auto;">${hits.map(o=>{
-            const sc = state.schools.find(x=>x.id===o.schoolId);
-            const tn = (o.trainerIds||[]).map(id=>{const t=state.trainers.find(x=>x.id===id);return t?t.name:'';}).filter(Boolean).join('، ');
-            return `<button type="button" class="activity-row" data-open="${o.id}" style="width:100%;">
-              <span class="request-mark mark-teal">${icon('fileText',15)}</span>
-              <span style="min-width:0;flex:1;text-align:right;">
-                <span class="ar-title">${escapeHtml(o.title)}</span>
-                <span class="ar-sub">${o.serial} · ${fmtDate(o.date)} · ${sc?escapeHtml(sc.name):'—'} · ${o.timeFrom||''}${tn?' · '+escapeHtml(tn):''}</span>
-              </span>
-              ${doneBadge(o.completionStatus)}
-            </button>`;
-          }).join('')}</div>`
-        : `<div class="empty-state" style="padding:26px;">لا توجد فعاليات في هذه الفترة</div>`;
-      /* نؤجّل العرض لأن openModal يُغلق النافذة بعد تنفيذ onSubmit */
-      setTimeout(()=>{
-        const ttl = (d1===d2) ? `فعاليات ${fmtDate(d1)}` : `من ${fmtDate(d1)} إلى ${fmtDate(d2)}`;
-        showInfoModal(`${ttl} — ${hits.length} ${eventWord(hits.length)}`, body, box=>{
-          box.style.maxWidth = '640px';
-          box.querySelectorAll('[data-open]').forEach(b=>{
-            b.onclick=()=>{ closeModal(); editOrder(b.dataset.open); };
-          });
-        });
-      }, 60);
-    });
-  };
   const qf = document.getElementById('ord_quickFind'), qfr = document.getElementById('ord_quickFindRes');
   qf.addEventListener('input', ()=>{
     const q = qf.value.trim();
@@ -4683,9 +4716,10 @@ function renderOrderPage(c){
   }
   if(orderSubTab==='list'){
     sub.innerHTML = `<div class="card"><h2>كل طلبات الفعاليات والمبادرات</h2>
-      <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr));margin-bottom:14px;">
-        <div class="field" style="margin:0;"><label>🔎 أمر التكليف</label><input id="ord_serialSearch" type="number" lang="en" placeholder="1234" style="width:90px;"></div>
-        <div class="field" style="margin:0;"><label>🔎 اسم المدرسة</label><input id="ord_schoolSearch" placeholder="اكتب للبحث..." style="width:170px;"></div>
+      <div class="ord-bar">
+        <div class="ord-find">
+          <input id="ord_listFind" placeholder="ابحث بالرقم أو العنوان أو المدرسة أو المقدّم..." autocomplete="off">
+        </div>
         <div class="field" style="margin:0;"><label>تصفية حسب</label>
           <select id="ord_filterKind" style="width:auto; min-width:140px;">
             <option value="">— اختر بندًا —</option>
@@ -4708,8 +4742,7 @@ function renderOrderPage(c){
             <option value="serialAsc">رقم التكليف (تصاعدي)</option>
           </select>
         </div>
-        <button class="icon-btn" id="ord_dateFind" data-tip="البحث بفترة" title="البحث بفترة" aria-label="البحث بفترة" style="width:26px;height:26px;padding:0;min-width:26px;">${icon('calendar',13)}</button>
-      <button class="icon-btn" id="ord_clearFilter" data-tip="مسح التصفية" title="مسح التصفية" aria-label="مسح التصفية" style="width:26px;height:26px;padding:0;min-width:26px;">${icon('x',13)}</button>
+        <button class="icon-btn" id="ord_clearFilter" data-tip="مسح التصفية" title="مسح التصفية" aria-label="مسح التصفية">${icon('x',14)}</button>
       </div>
       <div id="ord_listResult"></div></div>`;
     function optionsForKind(kind){
@@ -4732,13 +4765,11 @@ function renderOrderPage(c){
       document.getElementById('ord_filterKind').value='';
       document.getElementById('ord_filterValWrap').style.display='none';
       document.getElementById('ord_filterVal').innerHTML='';
-      document.getElementById('ord_serialSearch').value='';
-      document.getElementById('ord_schoolSearch').value='';
+      const _lf=document.getElementById('ord_listFind'); if(_lf) _lf.value='';
       drawFiltered();
     };
     function drawFiltered(){
-      const serialQ = document.getElementById('ord_serialSearch').value.trim();
-      const q = document.getElementById('ord_schoolSearch').value.trim();
+      const q = (document.getElementById('ord_listFind')||{}).value || '';
       const kind = document.getElementById('ord_filterKind').value;
       const val  = document.getElementById('ord_filterVal').value || '';
       const trainerFilter    = kind==='trainer' ? val : '';
@@ -4759,8 +4790,20 @@ function renderOrderPage(c){
         return aF ? (a.date||'').localeCompare(b.date||'')
                   : (b.date||'').localeCompare(a.date||'');
       });
-      if(serialQ){ list = list.filter(o=>String(o.serial).includes(serialQ)); }
-      if(q){ list = list.filter(o=>{ const s=state.schools.find(x=>x.id===o.schoolId); return s && s.name.includes(q); }); }
+      /* بحث موحّد: الرقم أو العنوان أو المدرسة أو المشرف أو المقدّم */
+      if(q.trim()){
+        const nz = s => String(s||'').replace(/[\u064B-\u0652\u0640]/g,'')
+          .replace(/[أإآا]/g,'ا').replace(/[ىي]/g,'ي').replace(/ة/g,'ه')
+          .replace(/\s+/g,' ').trim().toLowerCase();
+        const nq = nz(q);
+        list = list.filter(o=>{
+          if(String(o.serial).includes(q.trim())) return true;
+          const sc = state.schools.find(x=>x.id===o.schoolId);
+          const sv = sc ? (sc.supervisors||[]).find(x=>x.id===o.supervisorId) : null;
+          const trs = (o.trainerIds||[]).map(id=>{ const t=state.trainers.find(y=>y.id===id); return t?t.name:''; });
+          return nz([o.title, sc&&sc.name, sv&&sv.name, ...trs].filter(Boolean).join(' ')).includes(nq);
+        });
+      }
       if(trainerFilter){ list = list.filter(o=>(o.trainerIds||[]).includes(trainerFilter)); }
       if(fieldFilter){ list = list.filter(o=>o.fieldId===fieldFilter); }
       if(pathFilter){ list = list.filter(o=>o.programTypeId===pathFilter); }
@@ -4772,7 +4815,7 @@ function renderOrderPage(c){
       box.innerHTML = ordersTableHtml(list, 'otbl_order_list');
       enhanceReportTable(box);
     }
-    ['ord_serialSearch','ord_schoolSearch'].forEach(id=>document.getElementById(id).addEventListener('input', drawFiltered));
+    const _lf2=document.getElementById('ord_listFind'); if(_lf2) _lf2.addEventListener('input', drawFiltered);
     document.getElementById('ord_sort').addEventListener('change', drawFiltered);
     drawFiltered();
     return;
@@ -7255,7 +7298,7 @@ function renderQuranEntryForm(sub){
 function renderQuranReportTab(sub){
   sub.innerHTML = `<div class="card">
     <h2>تقرير الأنشطة القرآنية</h2>
-    <div class="fgrid" style="grid-template-columns:1fr; max-width:320px;">
+    <div class="fgrid">
       <div class="fbox"><label>${icon('bookOpen',13)} البرنامج</label>
         <select id="qr_program"><option value="">الكل</option><option value="روح">روح</option><option value="الرحيق">الرحيق</option></select></div>
       <div class="fbox"><label>${icon('calendar',13)} نوع التصفية</label>
