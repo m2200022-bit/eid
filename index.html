@@ -2124,6 +2124,11 @@
   /* عمود أمر التكليف أوسع ومزاح على الشاشة */
   #rp_result2 table th:first-child, #rp_result2 table td:first-child{
     width:64px; padding-inline-end:14px; text-align:center;}
+  /* تقرير الفعاليات المحددة: عمود التكليف والعنوان */
+  table.sel-tbl th:first-child, table.sel-tbl td:first-child{text-align:center; font-weight:700; white-space:nowrap;}
+  table.sel-tbl th:nth-child(2), table.sel-tbl td:nth-child(2){text-align:right;}
+  table.sel-tbl td:nth-child(3), table.sel-tbl td:nth-child(4),
+  table.sel-tbl td:nth-child(5), table.sel-tbl td:nth-child(7){white-space:nowrap; direction:ltr; text-align:center;}
 </style>
 </head>
 <body>
@@ -4653,6 +4658,57 @@ function otblActionFromSelect(containerId){
   select.value = '';
 }
 /* حذف كل الفعاليات المحددة من جدول كل الطلبات */
+async /* ══════════ تقرير الفعاليات المحددة ══════════ */
+const SEL_HDR = ['رقم التكليف','عنوان المبادرة','التاريخ','من','إلى','مكان التنفيذ','هاتف المشرف','مقدم المبادرة','المجال','المسار'];
+function selectedOrderRows(containerId){
+  const ids = __orderTableSelections[containerId] ? Array.from(__orderTableSelections[containerId]) : [];
+  const list = (state.orders||[]).filter(o=>ids.includes(o.id))
+    .sort((a,b)=>(a.date||'').localeCompare(b.date||'') || (a.timeFrom||'').localeCompare(b.timeFrom||''));
+  return list.map(o=>{
+    const sc = state.schools.find(x=>x.id===o.schoolId);
+    const sv = sc ? (sc.supervisors||[]).find(x=>x.id===o.supervisorId) : null;
+    const fd = state.fields.find(x=>x.id===o.fieldId);
+    const pt = state.programTypes.find(x=>x.id===o.programTypeId);
+    const trs = (o.trainerIds||[]).map(id=>{ const t=state.trainers.find(y=>y.id===id); return t?t.name:''; })
+      .filter(Boolean).join('، ');
+    const d1 = o.date, d2 = o.dateTo || o.date;
+    return [
+      o.serial,
+      o.title || '',
+      (d2 && d2!==d1) ? `${fmtDate(d1)} — ${fmtDate(d2)}` : fmtDate(d1),
+      o.timeFrom || '—',
+      o.timeTo || '—',
+      sc ? sc.name : '—',
+      sv && sv.phone ? sv.phone : '—',
+      trs || '—',
+      fd ? fd.name : '—',
+      pt ? pt.name : '—',
+    ];
+  });
+}
+function otblPrintSelected(containerId){
+  const rows = selectedOrderRows(containerId);
+  if(!rows.length){ toast('حدد فعالية واحدة على الأقل'); return; }
+  const dates = rows.map(r=>r[2]).filter(Boolean);
+  doPrintDoc(buildReportDoc({
+    titleAr:'تقرير الفعاليات المحددة',
+    subtitle:`${rows.length} ${eventWord(rows.length)}`,
+    kpis:[{v:rows.length,l:'📋 الفعاليات'},
+          {v:new Set(rows.map(r=>r[5])).size,l:'🏫 الجهات'},
+          {v:new Set(rows.flatMap(r=>String(r[7]).split('، ')).filter(x=>x&&x!=='—')).size,l:'👥 المقدّمون'}],
+    headers:SEL_HDR,
+    tableClass:'sel-tbl',
+    /* تكليف · عنوان · تاريخ · من · إلى · مكان · هاتف · مقدّم · مجال · مسار */
+    colWidths:['18mm','auto','30mm','15mm','15mm','46mm','22mm','40mm','30mm','30mm'],
+    rows: rows.map(r=>r.map(v=>escapeHtml(String(v))))
+  }), true, 'A4');
+}
+function otblExportSelected(containerId){
+  const rows = selectedOrderRows(containerId);
+  if(!rows.length){ toast('حدد فعالية واحدة على الأقل'); return; }
+  exportToExcel('تقرير_الفعاليات_المحددة.xlsx', SEL_HDR, rows,
+    `تقرير الفعاليات المحددة (${rows.length} ${eventWord(rows.length)})`);
+}
 async function otblBulkDelete(containerId){
   const ids = __orderTableSelections[containerId] ? Array.from(__orderTableSelections[containerId]) : [];
   if(!ids.length){ toast('حدد فعالية واحدة على الأقل'); return; }
@@ -4702,6 +4758,8 @@ function ordersTableHtml(list, containerId){
       <option value="المشرف لا يرد">المشرف لا يرد</option>
     </select>
     
+    <button class="icon-btn rect multi-ok" disabled data-tip="طباعة تقرير المحدد" title="طباعة تقرير المحدد" aria-label="طباعة تقرير المحدد" onclick="otblPrintSelected('${containerId}')">${icon('printer',17)}</button>
+    <button class="icon-btn rect multi-ok" disabled data-tip="تصدير المحدد Excel" title="تصدير المحدد Excel" aria-label="تصدير المحدد Excel" onclick="otblExportSelected('${containerId}')">${icon('sheet',17)}</button>
     <button class="icon-btn rect danger multi-ok" disabled data-tip="حذف المحدد" title="حذف المحدد" aria-label="حذف المحدد" onclick="otblBulkDelete('${containerId}')">${icon('trash',17)}</button>
   </div>`;
   const table = `<table><thead><tr><th><input type="checkbox" class="otbl-check-all" title="تحديد الكل" onchange="otblSelectAll('${containerId}', this)"></th><th>م</th><th>العنوان</th><th>التاريخ</th><th title="المدة بالساعات" aria-label="المدة بالساعات">${icon('clock',15)}</th><th>المجال</th><th>المدرسة</th><th>مقدم المبادرة</th><th>الإنجاز</th><th>الحالة</th></tr></thead><tbody>
@@ -5452,7 +5510,8 @@ function renderOrderForm(sub){
       <div class="th-bar">
         <span class="sec-title">بيانات التنفيذ والمكان<i>مكان تنفيذ المبادرة والجهة المشرفة عليها</i></span>
         <span class="th-actions">
-          <input id="f_schoolSearch" class="th-search" placeholder="🔎 بحث عن مدرسة/جهة...">
+          <input id="f_schoolSearch" class="th-search" placeholder="🔎 بحث عن مدرسة/جهة..." autocomplete="off">
+          <span id="f_schoolCount" class="helper" style="font-size:10.5px;"></span>
           <button class="plus-btn mini" title="إضافة تصنيف مكان تنفيذ" onclick="quickAddPlaceType()">+ مكان</button>
           <button class="plus-btn mini" title="إضافة مدرسة/جهة" id="f_addSchoolBtn" onclick="quickAddSchool(document.getElementById('f_placeType').value ? (levelsForPlaceType(document.getElementById('f_placeType').value)[0]||'') : '')">+ جهة</button>
           <button class="plus-btn mini" title="إضافة مشرف لهذه المدرسة" onclick="quickAddSupervisor()">+ مشرف</button>
@@ -5857,12 +5916,31 @@ function renderOrderForm(sub){
     const cat = document.getElementById('f_placeType').value;
     const levels = cat ? levelsForPlaceType(cat) : [];
     const sel = document.getElementById('f_school');
-    Array.from(sel.options).forEach(opt=>{
-      if(!opt.value){ opt.style.display=''; return; }
-      const matchesText = !q || opt.textContent.includes(q);
-      const matchesLevel = !levels.length || levels.includes(opt.dataset.level);
-      opt.style.display = (matchesText && matchesLevel) ? '' : 'none';
+    const keep = sel.value;
+    /* تطبيع عربي ليطابق رغم فروق الهمزات والتاء المربوطة */
+    const nz = s => String(s||'').replace(/[\u064B-\u0652\u0640]/g,'')
+      .replace(/[أإآا]/g,'ا').replace(/[ىي]/g,'ي').replace(/ة/g,'ه')
+      .replace(/\s+/g,' ').trim().toLowerCase();
+    const nq = nz(q);
+    const matches = (state.schools||[]).filter(s=>{
+      const okText  = !nq || nz(`${s.name} ${s.level||''}`).includes(nq);
+      const okLevel = !levels.length || levels.includes(s.level||'');
+      return okText && okLevel;
     });
+    /* إعادة بناء الخيارات — إخفاء <option> لا يعمل على متصفحات الجوال */
+    sel.innerHTML = `<option value="">— اختر مكان المبادرة —</option>` +
+      matches.map(s=>`<option value="${s.id}" data-level="${escapeHtml(s.level||'')}">${escapeHtml(s.name)}${s.level?` — ${escapeHtml(s.level)}`:''}</option>`).join('');
+    /* نُبقي الاختيار الحالي حتى لو خرج من نتيجة البحث */
+    if(keep){
+      if(!matches.some(s=>s.id===keep)){
+        const cur = (state.schools||[]).find(s=>s.id===keep);
+        if(cur) sel.insertAdjacentHTML('beforeend',
+          `<option value="${cur.id}" data-level="${escapeHtml(cur.level||'')}">${escapeHtml(cur.name)}${cur.level?` — ${escapeHtml(cur.level)}`:''}</option>`);
+      }
+      sel.value = keep;
+    }
+    const cnt = document.getElementById('f_schoolCount');
+    if(cnt) cnt.textContent = nq ? `${matches.length} نتيجة` : '';
   }
   document.getElementById('f_schoolSearch').addEventListener('input', filterSchoolOptions);
   /* مزامنة نسختَي "مكان التنفيذ" — التعديل في أيٍّ منهما ينعكس على الآخر */
@@ -9771,6 +9849,7 @@ function renderSettingsPage(c){
         <input type="file" id="schoolImportFile" accept=".xlsx,.xls,.csv" style="display:none" onchange="importSchoolsExcel(this.files[0])">
         <button class="icon-btn" onclick="quickAddSchoolSettings()" title="إضافة مدرسة" aria-label="إضافة مدرسة" style="width:28px;height:28px;padding:0;">${icon('plus',14)}</button>
         <button class="icon-btn" onclick="dedupeAll()" title="حذف المكرر (مدارس ومشرفين وأرقام وبريد)" aria-label="حذف المكرر" style="width:28px;height:28px;padding:0;">${icon('copy',14)}</button>
+        <button class="icon-btn" onclick="mergeSameSchools()" title="دمج المدارس المتطابقة بالاسم" aria-label="دمج المدارس المتطابقة" style="width:28px;height:28px;padding:0;">${icon('layers',14)}</button>
         <button class="icon-btn danger" onclick="bulkDeleteSchoolRows()" title="حذف المحدد" aria-label="حذف المحدد" style="width:28px;height:28px;padding:0;">${icon('trash',14)}</button>
       </span></h2>
     <div class="tbl-scroll">
@@ -10154,6 +10233,73 @@ async function bulkDeleteSchoolRows(){
   await saveState(); toast('تم الحذف'); render();
 }
 /* حذف المكرر: مدارس، مشرفون، أرقام، بريد */
+/* دمج المدارس التي تحمل الاسم نفسه مع مشرفيها — بلا تكرار */
+async function mergeSameSchools(){
+  const nz = s => String(s||'').replace(/[\u064B-\u0652\u0640]/g,'')
+    .replace(/[أإآا]/g,'ا').replace(/[ىي]/g,'ي').replace(/ة/g,'ه')
+    .replace(/\s+/g,' ').trim().toLowerCase();
+  const digits = s => String(s||'').replace(/\D/g,'');
+  /* تجميع المدارس حسب الاسم المطبَّع */
+  const groups = new Map();
+  (state.schools||[]).forEach(s=>{
+    const k = nz(s.name);
+    if(!groups.has(k)) groups.set(k, []);
+    groups.get(k).push(s);
+  });
+  const dupGroups = Array.from(groups.values()).filter(g=>g.length>1);
+  if(!dupGroups.length){ toast('لا توجد مدارس متطابقة بالاسم'); return; }
+  /* معاينة قبل الدمج */
+  const preview = dupGroups.map(g=>{
+    const svN = g.reduce((s,x)=>s+((x.supervisors||[]).length), 0);
+    const evN = g.reduce((s,x)=>s+(state.orders||[]).filter(o=>o.schoolId===x.id).length, 0);
+    return `• ${g[0].name}\n   ${g.length} سجلات · ${svN} مشرفًا · ${evN} فعالية`;
+  }).join('\n');
+  if(!confirm(`سيتم دمج ${dupGroups.length} مجموعة مدارس متطابقة:\n\n${preview}\n\n`
+    + `تُنقل كل الفعاليات والمشرفين إلى سجل واحد، وتُحذف المشرفون المكررون (بالاسم أو الجوال أو البريد).\n\nمتابعة؟`)) return;
+  let mergedSchools = 0, mergedSups = 0, movedOrders = 0;
+  dupGroups.forEach(g=>{
+    /* نُبقي السجل الأكثر اكتمالًا: الأكثر مشرفين ثم الأقدم */
+    const keep = g.slice().sort((a,b)=>((b.supervisors||[]).length - (a.supervisors||[]).length))[0];
+    keep.supervisors = keep.supervisors || [];
+    g.filter(s=>s.id!==keep.id).forEach(dup=>{
+      /* نقل المشرفين غير المكررين */
+      (dup.supervisors||[]).forEach(sv=>{
+        const exists = keep.supervisors.some(k=>
+          (nz(k.name) && nz(k.name)===nz(sv.name)) ||
+          (digits(k.phone) && digits(k.phone)===digits(sv.phone)) ||
+          (nz(k.email) && nz(k.email)===nz(sv.email)));
+        if(exists){
+          /* نحوّل فعاليات هذا المشرف إلى نظيره المُبقى */
+          const twin = keep.supervisors.find(k=>
+            (nz(k.name) && nz(k.name)===nz(sv.name)) ||
+            (digits(k.phone) && digits(k.phone)===digits(sv.phone)) ||
+            (nz(k.email) && nz(k.email)===nz(sv.email)));
+          if(twin) (state.orders||[]).forEach(o=>{ if(o.supervisorId===sv.id) o.supervisorId = twin.id; });
+          mergedSups++;
+        } else keep.supervisors.push(sv);
+      });
+      /* نقل الفعاليات */
+      (state.orders||[]).forEach(o=>{ if(o.schoolId===dup.id){ o.schoolId = keep.id; movedOrders++; } });
+      /* توحيد البيانات الناقصة */
+      if(!keep.level && dup.level) keep.level = dup.level;
+      if(!keep.email && dup.email) keep.email = dup.email;
+      state.schools = state.schools.filter(x=>x.id!==dup.id);
+      mergedSchools++;
+    });
+    /* إزالة أي تكرار متبقٍ داخل قائمة المشرفين */
+    const seenN=new Set(), seenP=new Set(), seenE=new Set(), out=[];
+    keep.supervisors.forEach(sv=>{
+      const a=nz(sv.name), b=digits(sv.phone), c=nz(sv.email);
+      if((a&&seenN.has(a))||(b&&seenP.has(b))||(c&&seenE.has(c))){ mergedSups++; return; }
+      if(a)seenN.add(a); if(b)seenP.add(b); if(c)seenE.add(c);
+      out.push(sv);
+    });
+    keep.supervisors = out;
+  });
+  await saveState();
+  toast(`دُمجت ${mergedSchools} مدرسة · ${mergedSups} مشرفًا مكررًا · نُقلت ${movedOrders} فعالية`);
+  render();
+}
 async function dedupeAll(){
   const norm = s => (s||'').replace(/\s+/g,' ').trim().toLowerCase();
   const digits = s => (s||'').replace(/\D/g,'');
