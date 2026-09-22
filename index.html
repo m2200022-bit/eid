@@ -2129,6 +2129,25 @@
   table.sel-tbl th:nth-child(2), table.sel-tbl td:nth-child(2){text-align:right;}
   table.sel-tbl td:nth-child(3), table.sel-tbl td:nth-child(4),
   table.sel-tbl td:nth-child(5), table.sel-tbl td:nth-child(7){white-space:nowrap; direction:ltr; text-align:center;}
+  /* ══ التنقل بين الفعاليات ══ */
+  .ord-nav{display:flex; align-items:center; gap:10px; margin-bottom:10px;}
+  .ord-nav-btn{all:unset; cursor:pointer; display:inline-flex; align-items:center; gap:6px;
+    padding:7px 13px; border-radius:10px; border:1px solid var(--line); background:#fff;
+    font-size:12.5px; font-weight:600; color:var(--ink); transition:border-color .18s, background .18s;}
+  .ord-nav-btn:hover:not([disabled]){border-color:var(--gold); background:var(--gold-l); color:var(--gold-d);}
+  .ord-nav-btn[disabled]{opacity:.4; cursor:not-allowed;}
+  .ord-nav-mid{flex:1; text-align:center; line-height:1.3;}
+  .ord-nav-mid b{display:block; font-size:13.5px; color:var(--heading-text);}
+  .ord-nav-mid i{display:block; font-style:normal; font-size:11px; color:var(--muted-text);}
+  @media (max-width:600px){ .ord-nav-btn span{display:none;} }
+  /* ══ أزرار تعديل/حذف صغيرة بجوار التسمية ══ */
+  .inl-acts{display:inline-flex; gap:3px; margin-inline-start:6px; vertical-align:middle;}
+  .inl-btn{all:unset; cursor:pointer; width:20px; height:20px; border-radius:6px;
+    display:inline-grid; place-items:center; color:var(--muted-text); background:var(--sand-100);}
+  .inl-btn:hover{background:var(--gold-l); color:var(--gold-d);}
+  .inl-btn.danger:hover{background:var(--danger-bg,#FBE7E5); color:var(--danger,#CF443A);}
+  .glow-card .form-table tbody td > label:has(.inl-acts),
+  .glow-card .form-table tbody td > label .inl-btn{pointer-events:auto !important;}
 </style>
 </head>
 <body>
@@ -2188,6 +2207,7 @@ function defaultState(){
     orgName:'إدارة الفعاليات', logo:'',
     printHeader:{ line1:'مؤسسة عيد الخيرية', line2:'مركز عيد الثقافي', line3:'قسم البرامج المجتمعية' },
     nextSerial:1,
+    venues:['مركز عيد الثقافي - دحل الحمام','مخيم أم العمد','عزبة سمسمة'].map(name=>({id:uid(), name})),
     fields:[
       {id:uid(), name:'طلب إداري'},{id:uid(), name:'ثقافي إجتماعي صحي'},{id:uid(), name:'البرامج القيمية الترفيهية'},
       {id:uid(), name:'ثقافي تنافسي'},{id:uid(), name:'ثقافي تطوير معرفي'},{id:uid(), name:'البرامج القيمية - المصلى المتنقل'},
@@ -2285,6 +2305,8 @@ async function loadState(){
       if(!state.adminNotifications) state.adminNotifications=[];
       if(!state.reminderFlags) state.reminderFlags={};
       if(!state.quranActivities) state.quranActivities=[];
+      /* أماكن التنفيذ الفعلية (حين يختلف مكان التنفيذ عن الجهة الطالبة) */
+      if(!Array.isArray(state.venues)) state.venues = ['مركز عيد الثقافي - دحل الحمام','مخيم أم العمد','عزبة سمسمة'].map(name=>({id:uid(), name}));
       if(!state.placeTypes || !state.placeTypes.length){
         state.placeTypes = ['مدرسة','مدارس حكومية','مدارس خاصة','نادي','مركز','استراحة','جامعة','مكان عام'].map(name=>({id:uid(), name}));
       }
@@ -3180,6 +3202,10 @@ function addDaysISO(iso, n){
   return `${y}-${m}-${dd}`;
 }
 /* يفحص تاريخ الفعالية مقابل التقويم ويعيد قائمة تنبيهات */
+/* اختبارات التعليم النهاري للكبار — لا تمنع تقديم الفعاليات */
+function isAdultEdExam(ev){
+  return /تعليم\s*الكبار/.test(String(ev && ev.t || ''));
+}
 function checkAcademicDate(date, dateTo){
   if(!date) return [];
   const s = date, e = dateTo || date;
@@ -3191,6 +3217,12 @@ function checkAcademicDate(date, dateTo){
   }
   ACADEMIC_CALENDAR.forEach(ev=>{
     const overlaps = s <= ev.to && e >= ev.from;
+    /* اختبارات «نهاري – تعليم الكبار» مستبعدة من المنع — تذكير فقط عند التداخل */
+    if(ev.kind==='exam' && isAdultEdExam(ev)){
+      if(overlaps) out.push({level:'info',
+        msg:`تذكير: ${ev.t} (${fmtDate(ev.from)} — ${fmtDate(ev.to)}) — مستبعدة من المنع.`});
+      return;
+    }
     if(ev.kind==='exam'){
       // فترة الاختبارات + الأسبوع الذي يسبقها
       const preFrom = addDaysISO(ev.from, -7);
@@ -3221,7 +3253,9 @@ function academicCalendarTable(){
       <td style="text-align:right;">${escapeHtml(ev.t)}</td>
       <td>${fmtDate(ev.from)}</td>
       <td>${ev.to!==ev.from?fmtDate(ev.to):'—'}</td>
-      <td><span class="badge" style="background:${KIND_COLOR[ev.kind]};color:#fff;">${KIND_LABEL[ev.kind]}</span></td>
+      <td>${isAdultEdExam(ev)
+        ? `<span class="badge" style="background:#E4EDF2;color:#3E7894;" title="مستبعدة من منع الفعاليات">تعليم الكبار — لا يمنع</span>`
+        : `<span class="badge" style="background:${KIND_COLOR[ev.kind]};color:#fff;">${KIND_LABEL[ev.kind]}</span>`}</td>
     </tr>`).join('')}</tbody></table></div>`;
 }
 /* ══ شارات الحالة الملوّنة ══ */
@@ -5417,7 +5451,25 @@ function renderOrderForm(sub){
   const editing = editingOrderId ? state.orders.find(o=>o.id===editingOrderId) : null;
   const selectedTrainerIds = editing ? (editing.trainerIds||[]) : [];
 
+  /* ترتيب الفعاليات بالرقم للتنقل بينها */
+  const navList = (state.orders||[]).slice().sort((a,b)=>(Number(a.serial)||0)-(Number(b.serial)||0));
+  const navIdx  = editing ? navList.findIndex(o=>o.id===editing.id) : navList.length;
+  const navPrev = navIdx>0 ? navList[navIdx-1] : null;
+  const navNext = (editing && navIdx < navList.length-1) ? navList[navIdx+1] : null;
   sub.innerHTML = `
+  <div class="ord-nav">
+    <button type="button" class="ord-nav-btn" id="navPrevOrder" ${navPrev?'':'disabled'}
+      title="${navPrev?escapeHtml('الفعالية السابقة: '+navPrev.serial+' — '+(navPrev.title||'')):'لا توجد فعالية سابقة'}"
+      aria-label="الفعالية السابقة">${icon('arrowRight',16)}<span>السابقة</span></button>
+    <div class="ord-nav-mid">
+      ${editing
+        ? `<b>أمر رقم ${escapeHtml(String(editing.serial))}</b><i>${navIdx+1} من ${navList.length}</i>`
+        : `<b>طلب جديد</b><i>${navList.length} فعالية مسجّلة</i>`}
+    </div>
+    <button type="button" class="ord-nav-btn" id="navNextOrder" ${navNext?'':'disabled'}
+      title="${navNext?escapeHtml('الفعالية التالية: '+navNext.serial+' — '+(navNext.title||'')):'لا توجد فعالية تالية'}"
+      aria-label="الفعالية التالية"><span>التالية</span>${icon('arrowLeft',16)}</button>
+  </div>
   <div class="gv-progress">
     <span class="gv-pct-lb">${icon('checkCircle',15)} اكتمال الطلب</span>
     <span class="gv-bar"><i id="gvBar" style="width:0%"></i></span>
@@ -5523,7 +5575,11 @@ function renderOrderForm(sub){
             <option value="">-- الكل --</option>
             ${state.placeTypes.map(p=>`<option value="${escapeHtml(p.name)}">${escapeHtml(p.name)}</option>`).join('')}
           </select></td>
-        <td style="width:44%;" title="مكان المبادرة"><label>${icon('school',13)} الجهة</label>
+        <td style="width:44%;" title="مكان المبادرة"><label>${icon('school',13)} الجهة
+            <span class="inl-acts">
+              <button type="button" class="inl-btn" onclick="formEditSchool()" title="تعديل اسم الجهة" aria-label="تعديل الجهة">${icon('edit',12)}</button>
+              <button type="button" class="inl-btn danger" onclick="formDeleteSchool()" title="حذف الجهة" aria-label="حذف الجهة">${icon('trash',12)}</button>
+            </span></label>
           <select id="f_school" size="1" required style="width:100%;"><option value="" ${editing&&editing.schoolId?'':'selected'}>— اختر مكان المبادرة —</option>${state.schools.map(s=>`<option value="${s.id}" data-level="${escapeHtml(s.level||'')}" ${editing&&editing.schoolId===s.id?'selected':''}>${escapeHtml(s.name)} — ${escapeHtml(s.level)}</option>`).join('')}</select>
         </td>
         <td style="width:18%;" title="المرحلة الدراسية"><label>${icon('layers',13)} المرحلة</label>
@@ -5532,11 +5588,30 @@ function renderOrderForm(sub){
             ${['ابتدائي','إعدادي','ثانوي','جامعي'].map(s=>`<option value="${s}">${s}</option>`).join('')}
           </select>
         </td>
-        <td style="width:38%;" title="الجهة المشرفة"><label>${icon('users',13)} المشرف</label>
-          <select id="f_supervisor" required style="width:100%;"></select>
+        <td style="width:38%;" title="الجهة المشرفة"><label>${icon('users',13)} المشرف
+            <span class="inl-acts">
+              <button type="button" class="inl-btn" onclick="formEditSupervisor()" title="تعديل اسم المشرف أو هاتفه" aria-label="تعديل المشرف">${icon('edit',12)}</button>
+              <button type="button" class="inl-btn danger" onclick="formDeleteSupervisor()" title="حذف المشرف" aria-label="حذف المشرف">${icon('trash',12)}</button>
+            </span></label>
+          <select id="f_supervisor" style="width:100%;"></select>
         </td>
       </tr>
       <tr><td colspan="4"><div id="supervisorInfo" class="supervisor-info">${''}</div></td></tr>
+      <tr>
+        <td colspan="4" title="يُترك فارغًا إذا كان التنفيذ في مقر الجهة الطالبة">
+          <label>${icon('school',13)} مكان التنفيذ الفعلي
+            <span class="inl-acts">
+              <button type="button" class="inl-btn" onclick="quickAddVenue()" title="إضافة مكان تنفيذ" aria-label="إضافة مكان تنفيذ">${icon('plus',12)}</button>
+            </span></label>
+          <select id="f_venue" style="width:100%;max-width:420px;">
+            <option value="">— في مقر الجهة الطالبة —</option>
+            ${(state.venues||[]).map(v=>`<option value="${escapeHtml(v.name)}" ${editing&&editing.venue===v.name?'selected':''}>${escapeHtml(v.name)}</option>`).join('')}
+            ${editing&&editing.venue&&!(state.venues||[]).some(v=>v.name===editing.venue)
+              ? `<option value="${escapeHtml(editing.venue)}" selected>${escapeHtml(editing.venue)}</option>` : ''}
+          </select>
+          <div class="helper" style="margin-top:4px;">اختره فقط إذا كان التنفيذ في مكان غير مقر الجهة الطالبة — يظهر في نسختَي أمر التكليف.</div>
+        </td>
+      </tr>
     </tbody></table>
   </div>
   </div>
@@ -5692,7 +5767,12 @@ function renderOrderForm(sub){
     const schId = document.getElementById('f_school').value;
     const sch = state.schools.find(s=>s.id===schId);
     const sel = document.getElementById('f_supervisor');
-    sel.innerHTML = (sch?sch.supervisors:[]).map(sv=>`<option value="${sv.id}" ${editing&&editing.supervisorId===sv.id?'selected':''}>${escapeHtml(sv.name)}</option>`).join('') || '<option value="">لا يوجد مشرفين</option>';
+    const svs = (sch && sch.supervisors) ? sch.supervisors : [];
+    /* المشرف اختياري — يمكن الحفظ الآن وإضافته لاحقًا */
+    sel.innerHTML = svs.length
+      ? svs.map(sv=>`<option value="${sv.id}" ${editing&&editing.supervisorId===sv.id?'selected':''}>${escapeHtml(sv.name)}${sv.phone?'':' (بلا رقم)'}</option>`).join('')
+        + `<option value="" ${editing&&!editing.supervisorId?'selected':''}>— بدون مشرف (يُضاف لاحقًا) —</option>`
+      : '<option value="">لا يوجد مشرف — يُضاف لاحقًا</option>';
     updateSupervisorInfo();
   }
   function updateSupervisorInfo(){
@@ -5826,6 +5906,11 @@ function renderOrderForm(sub){
   stageEl.addEventListener('change', ()=>{ stageEl.dataset.manual = stageEl.value ? '1' : '0'; });
   document.getElementById('f_school').addEventListener('change', syncStageFromSchool);
   syncStageFromSchool();
+  /* التنقل بين الفعاليات */
+  const _np = document.getElementById('navPrevOrder'), _nn = document.getElementById('navNextOrder');
+  if(_np && navPrev) _np.onclick = ()=>editOrder(navPrev.id);
+  if(_nn && navNext) _nn.onclick = ()=>editOrder(navNext.id);
+
   /* ══ فواصل ورقية: عرض قسم واحد في كل مرة ══ */
   (function(){
     const tabs   = sub.querySelectorAll('[data-ftab]');
@@ -5867,7 +5952,8 @@ function renderOrderForm(sub){
     const rows = [
       ['fileText','عنوان المبادرة', val('f_title') || dash],
       ['layers','المجال والمسار', [fd&&fd.name, pt&&pt.name].filter(Boolean).join(' · ') || dash],
-      ['school','مكان التنفيذ', sc ? sc.name : dash],
+      ['school', val('f_venue') ? 'الجهة الطالبة' : 'مكان التنفيذ', sc ? sc.name : dash],
+      ...(val('f_venue') ? [['school','مكان التنفيذ', val('f_venue')]] : []),
       ['users','المشرف', sv ? (sv.phone ? `${sv.name} — ${sv.phone}` : sv.name) : dash],
       ['calendar','التاريخ', d1 ? (d2!==d1 ? `${fmtDate(d1)} — ${fmtDate(d2)}` : fmtDate(d1)) : dash],
       ['clock','الوقت والمدة', (val('f_timeFrom')||val('f_timeTo'))
@@ -6125,7 +6211,10 @@ function renderOrderForm(sub){
       }
     }
     if(!schoolId){ toast('يرجى اختيار مكان المبادرة'); return; }
-    if(!supervisorId){ toast('يرجى اختيار المشرف'); return; }
+    if(!supervisorId){
+      const ok = confirm('لم يُحدَّد مشرف لهذه الفعالية.\n\nسيتم الحفظ بدون مشرف، ويمكنك إضافته لاحقًا عند الحصول على رقمه.\n\nمتابعة؟');
+      if(!ok) return;
+    }
     if(!trainerIds.length){ toast('يرجى اختيار مقدم مبادرة واحد على الأقل'); return; }
     if(!checkedReqs.length){ toast('يرجى اختيار طلب إداري واحد على الأقل'); return; }
 
@@ -6156,6 +6245,7 @@ function renderOrderForm(sub){
       title, fieldId, participantsCount,
       date, dateTo: dateTo||'', timeFrom, timeTo, programTypeId: ptypeId,
       schoolId, supervisorId, trainerIds,
+      venue: ((document.getElementById('f_venue')||{}).value || '').trim(),
       requesterNote: document.getElementById('f_reqNote').value, adminNote: document.getElementById('f_adminNote').value,
       adminRequests: checkedReqs,
     };
@@ -6198,7 +6288,8 @@ function viewOrderReadOnly(id){
     ['calendar','التاريخ', d1 ? (d2!==d1 ? `${fmtDate(d1)} — ${fmtDate(d2)}` : fmtDate(d1)) : '—'],
     ['clock','الوقت', fullTimeRange(o.timeFrom,o.timeTo)||'—'],
     ['layers','المدة', `${daysCount(d1,d2)} ${dayWord(daysCount(d1,d2))} · ${computeHours(o.timeFrom,o.timeTo,d1,d2)} ساعة`],
-    ['school','المكان', sc?sc.name:'—'],
+    ['school', o.venue?'الجهة الطالبة':'المكان', sc?sc.name:'—'],
+    ...(o.venue ? [['school','مكان التنفيذ', o.venue]] : []),
     ['users','المشرف', sv ? (sv.phone?`${sv.name} — ${sv.phone}`:sv.name) : '—'],
     ['users','مقدّمو المبادرة', trs.length?trs.join('، '):'—'],
     ['clipboard','الطلبات الإدارية', rqs.length?rqs.join('، '):'—'],
@@ -6347,7 +6438,7 @@ async function toggleUserActive(id){
 /* ══ حفظ مدخلات نموذج الفعالية واستعادتها بعد أي إضافة سريعة ══ */
 const ORDER_FORM_IDS = ['f_field','f_ptype','f_title','f_date','f_dateTo','f_daysCount','f_timeFrom',
   'f_timeTo','f_count','f_hoursCount','f_placeType','f_placeTypeTop','f_school','f_stage','f_supervisor',
-  'f_period','f_reqNote','f_adminNote'];
+  'f_period','f_reqNote','f_adminNote','f_venue'];
 function snapshotOrderForm(){
   if(!document.getElementById('f_title')) return null;
   const snap = {vals:{}, trainers:[], reqs:[]};
@@ -6368,6 +6459,64 @@ function restoreOrderForm(snap){
   if(tBox) snap.trainers.forEach(v=>{ const cb=tBox.querySelector(`input[value="${v}"]`); if(cb) cb.checked=true; });
   const rBox=document.getElementById('reqHiddenChecks');
   if(rBox) snap.reqs.forEach(v=>{ const cb=rBox.querySelector(`input[value="${v}"]`); if(cb) cb.checked=true; });
+}
+/* ══ تعديل / حذف الجهة والمشرف من صفحة طلب الفعالية ══ */
+function formCurSchool(){
+  const id = (document.getElementById('f_school')||{}).value;
+  return id ? state.schools.find(s=>s.id===id) : null;
+}
+function formEditSchool(){
+  const s = formCurSchool();
+  if(!s){ toast('اختر الجهة أولًا'); return; }
+  editSchool(s.id);
+}
+async function formDeleteSchool(){
+  const s = formCurSchool();
+  if(!s){ toast('اختر الجهة أولًا'); return; }
+  const used = (state.orders||[]).filter(o=>o.schoolId===s.id && o.id!==editingOrderId).length;
+  const msg = `حذف الجهة: ${s.name}`
+    + ((s.supervisors||[]).length ? `\nومعها ${(s.supervisors||[]).length} مشرف` : '')
+    + (used ? `\n\n⚠ هذه الجهة مرتبطة بـ ${used} فعالية أخرى — ستبقى الفعاليات لكن بلا جهة.` : '')
+    + '\n\nهل تريد المتابعة؟';
+  if(!confirm(msg)) return;
+  state.schools = state.schools.filter(x=>x.id!==s.id);
+  await saveState(); toast('تم حذف الجهة');
+  const snap = snapshotOrderForm();
+  if(snap){ snap.vals.f_school=''; snap.vals.f_supervisor=''; }
+  render(); if(snap) setTimeout(()=>restoreOrderForm(snap), 0);
+}
+function formEditSupervisor(){
+  const s = formCurSchool();
+  if(!s){ toast('اختر الجهة أولًا'); return; }
+  const svId = (document.getElementById('f_supervisor')||{}).value;
+  if(!svId){ toast('لا يوجد مشرف محدد — استخدم "+ مشرف" لإضافته'); return; }
+  editSupervisor(s.id, svId);
+}
+async function formDeleteSupervisor(){
+  const s = formCurSchool();
+  if(!s){ toast('اختر الجهة أولًا'); return; }
+  const svId = (document.getElementById('f_supervisor')||{}).value;
+  const sv = (s.supervisors||[]).find(x=>x.id===svId);
+  if(!sv){ toast('لا يوجد مشرف محدد'); return; }
+  const used = (state.orders||[]).filter(o=>o.supervisorId===sv.id && o.id!==editingOrderId).length;
+  if(!confirm(`حذف المشرف: ${sv.name}`
+    + (used ? `\n\n⚠ مرتبط بـ ${used} فعالية أخرى — ستبقى بلا مشرف.` : '')
+    + '\n\nهل تريد المتابعة؟')) return;
+  s.supervisors = (s.supervisors||[]).filter(x=>x.id!==sv.id);
+  await saveState(); toast('تم حذف المشرف');
+  const snap = snapshotOrderForm();
+  if(snap) snap.vals.f_supervisor='';
+  render(); if(snap) setTimeout(()=>restoreOrderForm(snap), 0);
+}
+function quickAddVenue(){
+  openModal('إضافة مكان تنفيذ', [{name:'name', label:'اسم مكان التنفيذ', required:true}], async v=>{
+    const name = (v.name||'').trim(); if(!name) return false;
+    state.venues = state.venues || [];
+    if(!state.venues.some(x=>x.name===name)) state.venues.push({id:uid(), name});
+    await saveState(); toast('تمت إضافة مكان التنفيذ');
+    const snap = snapshotOrderForm(); if(snap) snap.vals.f_venue = name;
+    render(); if(snap) setTimeout(()=>restoreOrderForm(snap), 0);
+  });
 }
 function renderKeepForm(){
   const snap = snapshotOrderForm();
@@ -6428,7 +6577,7 @@ function promptAddSupervisorFor(schoolId, schoolName){
   ], async v=>{
     const sch = state.schools.find(s=>s.id===schoolId); if(!sch) return;
     sch.supervisors.push({id:uid(), name:v.name, phone:v.phone, email:v.email});
-    await saveState(); toast('تم حفظ بيانات المشرف'); render();
+    await saveState(); toast('تم حفظ بيانات المشرف'); renderKeepForm();
     setTimeout(()=>{
       const s=document.getElementById('f_school'); if(s){ s.value=schoolId; s.dispatchEvent(new Event('change')); }
     },0);
@@ -6554,6 +6703,16 @@ function printDocOpen(theme){
     padding:1.1mm 0;font-size:11.5pt;line-height:1.25}
   .f-ar{font-weight:700;color:${theme};min-width:160px;font-size:16px;font-family:'Tajawal',Arial}
   .f-val{flex:1;text-align:center;font-weight:400;font-size:16px;font-family:'Tajawal',Arial}
+  /* جدول حقول أمر التكليف: محاذاة موحّدة لكل المدخلات */
+  .fr-tbl{width:100%;border-collapse:collapse;table-layout:auto;margin:0}
+  .fr-tbl>tbody>tr>td{border:none !important;background-color:transparent !important;
+    padding:1.1mm 0;vertical-align:middle;font-size:16px;font-family:'Tajawal',Arial;line-height:1.25;
+    background-image:repeating-linear-gradient(to right, rgba(138,21,56,.30) 0 1px, transparent 1px 5px) !important;
+    background-position:left bottom !important;background-size:100% 0.6px !important;background-repeat:no-repeat !important;
+    -webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .fr-tbl>tbody>tr>td.f-ar{width:1%;white-space:nowrap;min-width:0;text-align:right;
+    padding-inline-end:14px;font-weight:700;color:${theme}}
+  .fr-tbl>tbody>tr>td.f-val{text-align:right;font-weight:400}
   .ftr{border-top:2px solid ${theme};margin-top:5mm;padding-top:2mm;text-align:center;font-size:9.5pt;color:#666}
   /* @page rule is injected per-call by doPrintDoc() below, with the correct size+orientation+margin */
   .field-row{-webkit-print-color-adjust:exact;print-color-adjust:exact}
@@ -6631,12 +6790,39 @@ function repPeriodCell(o){
   return `<span class="prd2"><span class="p2"><b>من</b><i>${s||'—'}</i></span><span class="p2"><b>إلى</b><i>${e||'—'}</i></span></span>`;
 }
 /* المكان وهاتف المشرف في عمود واحد يفصلهما / */
+/* شارة صفراء لمكان التنفيذ الفعلي — أنماط مضمّنة لتظهر في الطباعة أيضًا */
+const VENUE_BADGE_STYLE = 'background:#FFF1A8;color:#5C4A00;border:1px solid #E8D46A;border-radius:4px;padding:1px 6px;font-weight:700;display:inline-block;font-size:.92em;line-height:1.5;';
+function venueBadge(o){
+  if(!o || !o.venue) return '';
+  return `<div style="margin-top:3px;"><span style="${VENUE_BADGE_STYLE}">مكان التنفيذ: ${escapeHtml(o.venue)}</span></div>`;
+}
+/* عنوان الفعالية + شارة مكان التنفيذ (للتقارير التي بلا عمود مكان) */
+function titleWithVenue(o){
+  const t = escapeHtml(o.title||'');
+  return o && o.venue ? `<span>${t}</span>${venueBadge(o)}` : (o.title||'');
+}
+/* أماكن التنفيذ الفعلية لمجموعة فعاليات — شارات صفراء مع العدد */
+function venuesSummary(list){
+  const m = {};
+  (list||[]).forEach(o=>{ if(o.venue) m[o.venue] = (m[o.venue]||0)+1; });
+  const e = Object.entries(m).sort((a,b)=>b[1]-a[1]);
+  if(!e.length) return '—';
+  return `<span>${e.map(([n,c])=>`<span style="${VENUE_BADGE_STYLE}margin:1px;">${escapeHtml(n)}${c>1?` (${c})`:''}</span>`).join(' ')}</span>`;
+}
+function venuesSummaryText(list){
+  const m = {};
+  (list||[]).forEach(o=>{ if(o.venue) m[o.venue] = (m[o.venue]||0)+1; });
+  const e = Object.entries(m).sort((a,b)=>b[1]-a[1]);
+  return e.length ? e.map(([n,c])=>c>1?`${n} (${c})`:n).join('، ') : '—';
+}
 function repPlacePhone(o){
   const school = state.schools.find(s=>s.id===o.schoolId);
-  const sup = school ? school.supervisors.find(s=>s.id===o.supervisorId) : null;
+  const sup = school ? (school.supervisors||[]).find(s=>s.id===o.supervisorId) : null;
   const nm = school ? escapeHtml(school.name) : '—';
   const ph = sup && sup.phone ? escapeHtml(sup.phone) : '';
-  return ph ? `${nm} / ${ph}` : nm;
+  const base = ph ? `${nm} / ${ph}` : nm;
+  /* مع مكان التنفيذ: نغلّف بوسم ليُعامل كـ HTML في الجداول */
+  return o.venue ? `<span>${base}</span>${venueBadge(o)}` : base;
 }
 /* مقدمو الفعالية: الاسم ورقمه أسفله، وكل مقدّم في سطر */
 function repTrainers(o){
@@ -6747,7 +6933,8 @@ function qrTextForOrder(o){
   L.push(`التاريخ: ${dateTxt}`);
   L.push(`الوقت: ${timeTxt}`);
   L.push(`عدد الأيام: ${daysCount(o.date,o.dateTo)} — الساعات: ${computeHours(o.timeFrom,o.timeTo,o.date,o.dateTo)}`);
-  L.push(`المكان: ${school?school.name:'—'}`);
+  L.push(`${o.venue?'الجهة الطالبة':'المكان'}: ${school?school.name:'—'}`);
+  if(o.venue) L.push(`مكان التنفيذ: ${o.venue}`);
   if(sup) L.push(`المشرف: ${sup.name}${sup.phone?` — ${sup.phone}`:''}`);
   if(trainers.length) L.push(`مقدّم المبادرة: ${trainers.join('، ')}`);
   if(reqs.length)     L.push(`الطلبات الإدارية: ${reqs.join('، ')}`);
@@ -6759,8 +6946,9 @@ function qrTextForOrder(o){
 function dashedPeopleBox(people){
   const list = people.filter(Boolean);
   if(!list.length) return '—';
-  return `<div style="display:flex;flex-wrap:wrap;align-items:stretch;justify-content:center;width:100%;">
-    ${list.map((p,i)=>`<div style="flex:0 1 auto; padding:0 6px; text-align:center; ${i>0?`border-right:1px solid ${PRINT_LINE_COLOR};`:''}">
+  /* يبدأ من نفس خط بقية المدخلات (بداية السطر) بدل التوسيط */
+  return `<div style="display:flex;flex-wrap:wrap;align-items:stretch;justify-content:flex-start;width:100%;">
+    ${list.map((p,i)=>`<div style="flex:0 1 auto; padding:0 ${i>0?'10px':'0'} 0 10px; text-align:right; ${i>0?`border-right:1px solid ${PRINT_LINE_COLOR};`:''}">
       <div style="font-size:9pt; color:#161616; font-weight:400; line-height:1.1; white-space:nowrap;">${escapeHtml(p.name||'—')}</div>
       <div style="font-size:10pt; color:#111; font-weight:400; line-height:1.1; white-space:nowrap; margin-top:1.6mm;">${p.phone?phoneLinkWithIcons(p.phone):'-'}</div>
     </div>`).join('')}
@@ -6808,11 +6996,13 @@ async function buildOrderPrintDoc(o, opts, copyLabel){
         : ''],
     ['عدد الأيام والمدة', `عدد الأيام: (<span class="num-f">${daysCount(o.date, o.dateTo)}</span>)&nbsp;&nbsp;&nbsp;المدة بالساعات: (<span class="num-f">${computeHours(o.timeFrom, o.timeTo, o.date, o.dateTo)}</span>)`],
     ['مكان المبادرة والمشرف', `<span style="display:inline-flex;flex-wrap:wrap;align-items:center;gap:0 14px;">
-      <span><b>المدرسة :</b> ${escapeHtml(school?school.name:'—')}</span>
+      <span><b>${o.venue?'الجهة الطالبة':'المدرسة'} :</b> ${escapeHtml(school?school.name:'—')}</span>
       <span><b>المشرف :</b> ${supervisor?escapeHtml(supervisor.name):'—'}</span>
       <span><b>الجوال :</b> ${supervisor&&supervisor.phone?phoneLinkWithIcons(supervisor.phone):'—'}</span>
     </span>`],
   ];
+  /* مكان التنفيذ الفعلي — يظهر فقط إذا اختلف عن الجهة الطالبة */
+  if(o.venue) summaryRows.push(['مكان التنفيذ', `<b>${escapeHtml(o.venue)}</b>`]);
   const trainerIds = (o.trainerIds||[]);
   const trainerPeople = trainerIds.map(id=>state.trainers.find(t=>t.id===id)).filter(Boolean).map(t=>({name:t.name, phone:t.phone}));
   let rows = [
@@ -6843,8 +7033,12 @@ async function buildOrderPrintDoc(o, opts, copyLabel){
       ${isAdminCopy?'':`<div class="num-f" style="font-weight:700;font-size:9pt;line-height:1.2;color:${PRINT_LINE_COLOR};margin-top:0.6mm;">${o.serial}</div>`}
     </div>
   </div>`;
-  html += summaryRows.map(([label,val])=>`<div class="field-row"><span class="f-ar">${escapeHtml(label)} :</span><span class="f-val">${val}</span></div>`).join('');
-  html += rows.map(([label,val])=>`<div class="field-row"><span class="f-ar">${escapeHtml(label)} :</span><span class="f-val">${val}</span></div>`).join('');
+  /* كل الحقول في جدول واحد بعمودين: عمود التسميات يأخذ عرض أطول تسمية،
+     فتبدأ جميع المدخلات من خط رأسي واحد بمسافة موحّدة بعد العنوان */
+  html += `<table class="fr-tbl"><tbody>${
+    summaryRows.concat(rows).map(([label,val])=>
+      `<tr class="fr-row"><td class="f-ar">${escapeHtml(label)} :</td><td class="f-val">${val}</td></tr>`
+    ).join('')}</tbody></table>`;
   html += printDocFooter();
   html += printDocClose();
   return html;
@@ -7265,10 +7459,12 @@ function renderAdminRequestsReportPage(c){
     const fromInput = document.getElementById('arq_from').value;
     let from = fromInput, to = document.getElementById('arq_to').value;
     if(range && fromInput){
-      const d = new Date(fromInput+'T00:00:00');
-      if(range==='week') d.setDate(d.getDate()+6);
-      else if(range==='month') d.setMonth(d.getMonth()+1), d.setDate(d.getDate()-1);
-      to = d.toISOString().slice(0,10);
+      if(range==='week') to = addDaysISO(fromInput, 6);
+      else if(range==='month'){
+        const d = new Date(fromInput+'T00:00:00'); d.setMonth(d.getMonth()+1);
+        const nx = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+        to = addDaysISO(nx, -1);                     // بدون toISOString (يزيح اليوم في توقيت قطر)
+      }
     }
     const list = state.orders.filter(o=> (o.adminRequests||[]).length>0 && (!from||o.date>=from) && (!to||o.date<=to))
       .sort((a,b)=> (a.date||'').localeCompare(b.date||'') || a.serial-b.serial);
@@ -7279,20 +7475,28 @@ function renderAdminRequestsReportPage(c){
     list.forEach(o=>{
       const school = state.schools.find(s=>s.id===o.schoolId);
       const dateStr = o.dateTo && o.dateTo!==o.date ? `${fmtDate(o.date)} — ${fmtDate(o.dateTo)}` : fmtDate(o.date);
-      const reqNames = (o.adminRequests||[]).map(id=>{ const r=state.adminRequestsList.find(x=>x.id===id); return r?r.name:''; }).filter(Boolean);
-      reqNames.forEach(reqName=>{
-        rows.push({o, school, dateStr, reqName});
-      });
+      const reqs = (o.adminRequests||[]).map(id=>{ const r=state.adminRequestsList.find(x=>x.id===id); return r?r.name:''; })
+        .filter(Boolean).sort((a,b)=>a.localeCompare(b,'ar'));
+      if(!reqs.length) return;
+      /* أمر التكليف الواحد = صف واحد، وطلباته مجمّعة في مربع واحد */
+      rows.push({o, school, dateStr, reqs, reqName: reqs.join('، ')});
     });
     return rows;
+  }
+  /* المكان + مكان التنفيذ الفعلي بخلفية صفراء للتمييز */
+  function placeCell(o){ return repPlacePhone(o); }
+  /* الطلبات الإدارية في مربع واحد — كل طلب في سطر */
+  function reqsCell(r){
+    return r.reqs.map(x=>`<div style="padding:1px 0;white-space:nowrap;">• ${escapeHtml(x)}</div>`).join('');
   }
   function draw(){
     const {list} = getList();
     const rows = rowsOf(list);
     const box = document.getElementById('arq_result');
-    box.innerHTML = `<h2>النتائج (${rows.length})</h2>
-      <table><thead><tr><th></th><th>#</th><th>عنوان الفعالية</th><th>التاريخ</th><th>الوقت</th><th>المدة</th><th>المكان / هاتف المشرف</th><th>مقدم الفعالية</th><th>مقدم المبادرة</th><th>الهاتف</th><th>الطلب</th></tr></thead><tbody>
-        ${rows.map(r=>`<tr><td><input type="checkbox" class="arq-check" data-id="${r.o.id}"></td><td>${r.o.serial}</td><td style="text-align:right;">${escapeHtml(r.o.title||'')}</td><td>${repPeriodCell(r.o)}</td><td>${escapeHtml(fullTimeRange(r.o.timeFrom,r.o.timeTo))}</td><td>${daysCount(r.o.date,r.o.dateTo)} ي / ${computeHours(r.o.timeFrom,r.o.timeTo,r.o.date,r.o.dateTo)} س</td><td>${repPlacePhone(r.o)}</td><td>${repTrainers(r.o)}</td><td>${escapeHtml(r.reqName)}</td></tr>`).join('') || '<tr><td colspan="9" class="empty-state">لا توجد طلبات إدارية ضمن هذه الفترة</td></tr>'}
+    const reqTotal = rows.reduce((s,r)=>s+r.reqs.length, 0);
+    box.innerHTML = `<h2>النتائج — ${rows.length} ${eventWord(rows.length)} · ${reqTotal} طلب إداري</h2>
+      <table><thead><tr><th></th><th>#</th><th>عنوان الفعالية</th><th>التاريخ</th><th>الوقت</th><th>المدة</th><th>المكان / هاتف المشرف</th><th>مقدم الفعالية</th><th>الطلبات الإدارية</th></tr></thead><tbody>
+        ${rows.map(r=>`<tr><td><input type="checkbox" class="arq-check" data-id="${r.o.id}"></td><td>${r.o.serial}</td><td style="text-align:right;">${escapeHtml(r.o.title||'')}</td><td>${repPeriodCell(r.o)}</td><td>${escapeHtml(fullTimeRange(r.o.timeFrom,r.o.timeTo))}</td><td>${daysCount(r.o.date,r.o.dateTo)} ي / ${computeHours(r.o.timeFrom,r.o.timeTo,r.o.date,r.o.dateTo)} س</td><td>${placeCell(r.o)}</td><td>${repTrainers(r.o)}</td><td style="text-align:right;">${reqsCell(r)}</td></tr>`).join('') || '<tr><td colspan="9" class="empty-state">لا توجد طلبات إدارية ضمن هذه الفترة</td></tr>'}
       </tbody></table>`;
     enhanceReportTable(box);
   }
@@ -7304,9 +7508,11 @@ function renderAdminRequestsReportPage(c){
     return rowsOf(list.filter(o=>ids.includes(o.id)));
   }
   function excelRowsOf(rows){
-    return rows.map(r=>[r.o.serial, r.o.title||'', r.dateStr, fullTimeRange(r.o.timeFrom,r.o.timeTo), `${daysCount(r.o.date,r.o.dateTo)} يوم / ${computeHours(r.o.timeFrom,r.o.timeTo,r.o.date,r.o.dateTo)} ساعة`, r.school?r.school.name:'', trainerNames(r.o)+(trainerPhones(r.o)?' — '+trainerPhones(r.o):''), r.reqName]);
+    return rows.map(r=>[r.o.serial, r.o.title||'', r.dateStr, fullTimeRange(r.o.timeFrom,r.o.timeTo), `${daysCount(r.o.date,r.o.dateTo)} يوم / ${computeHours(r.o.timeFrom,r.o.timeTo,r.o.date,r.o.dateTo)} ساعة`,
+      (r.school?r.school.name:'') + (r.o.venue ? ` — مكان التنفيذ: ${r.o.venue}` : ''),
+      trainerNames(r.o)+(trainerPhones(r.o)?' — '+trainerPhones(r.o):''), r.reqs.join('، ')]);
   }
-  const excelHeaders = ['#','عنوان الفعالية','التاريخ','الوقت','المدة','المكان','مقدم المبادرة','الطلب الإداري'];
+  const excelHeaders = ['#','عنوان الفعالية','التاريخ','الوقت','المدة','المكان','مقدم المبادرة','الطلبات الإدارية'];
 
   document.getElementById('arq_excel').onclick=()=>{
     const {list, from, to} = getList();
@@ -7319,13 +7525,13 @@ function renderAdminRequestsReportPage(c){
   };
 
   function buildPrintRows(rows){
-    return rows.map(r=>[r.o.serial, escapeHtml(r.o.title||''), repPeriodCell(r.o), escapeHtml(fullTimeRange(r.o.timeFrom,r.o.timeTo)), `${daysCount(r.o.date,r.o.dateTo)} ي / ${computeHours(r.o.timeFrom,r.o.timeTo,r.o.date,r.o.dateTo)} س`, repPlacePhone(r.o), repTrainers(r.o), escapeHtml(r.reqName)]);
+    return rows.map(r=>[r.o.serial, escapeHtml(r.o.title||''), repPeriodCell(r.o), escapeHtml(fullTimeRange(r.o.timeFrom,r.o.timeTo)), `${daysCount(r.o.date,r.o.dateTo)} ي / ${computeHours(r.o.timeFrom,r.o.timeTo,r.o.date,r.o.dateTo)} س`, placeCell(r.o), repTrainers(r.o), reqsCell(r)]);
   }
   async function printIt(){
     const {list, from, to} = getList();
     doPrintDoc(buildReportDoc({
       titleAr:'تقرير الطلبات الإدارية', subtitle:`من ${from?fmtDate(from):'—'} إلى ${to?fmtDate(to):'—'}`,
-      kpis:[{v:list.length,l:'عدد الفعاليات'}],
+      kpis:[{v:rowsOf(list).length,l:'عدد الفعاليات'},{v:rowsOf(list).reduce((s,r)=>s+r.reqs.length,0),l:'عدد الطلبات الإدارية'}],
       headers:excelHeaders,
       rows: buildPrintRows(rowsOf(list))
     }), true, 'A4');
@@ -7886,9 +8092,9 @@ function renderReportsPage(c){
       list.forEach(o=>{
         const k = keyOf(o.date, g), sk = sortKey(o.date, g);
         if(!map.has(k)) map.set(k, {k, sk, n:0, days:0, hours:0, people:0,
-          reqs:0, schools:new Set(), trainers:new Set(), done:0, cancelled:0, postponed:0});
+          reqs:0, schools:new Set(), trainers:new Set(), done:0, cancelled:0, postponed:0, items:[]});
         const r = map.get(k);
-        r.n++;
+        r.n++; r.items.push(o);
         r.days   += daysCount(o.date, o.dateTo);
         r.hours  += computeHours(o.timeFrom, o.timeTo, o.date, o.dateTo);
         r.people += Number(o.participantsCount)||0;
@@ -7910,9 +8116,9 @@ function renderReportsPage(c){
       tot.trainers = new Set(list.flatMap(o=>o.trainerIds||[])).size;
       return {rows, tot, from, to, g, list};
     }
-    const HDR = ['الفترة','الفعاليات','الأيام','الساعات','المستهدفون','الطلبات الإدارية','الجهات','المنفذون','منجزة','مؤجلة','ملغاة'];
+    const HDR = ['الفترة','الفعاليات','الأيام','الساعات','المستهدفون','الطلبات الإدارية','الجهات','المنفذون','منجزة','مؤجلة','ملغاة','أماكن التنفيذ الفعلية'];
     function rowsOf(d){ return d.rows.map(r=>[r.k, r.n, r.days, r.hours, r.people, r.reqs,
-      r.schools.size, r.trainers.size, r.done, r.postponed, r.cancelled]); }
+      r.schools.size, r.trainers.size, r.done, r.postponed, r.cancelled, venuesSummaryText(r.items)]); }
     function render(){
       const d = gather();
       const el = document.getElementById('ps_result');
@@ -7941,12 +8147,14 @@ function renderReportsPage(c){
             <td><b>${r.n}</b></td><td>${r.days}</td><td>${r.hours}</td><td>${r.people}</td><td>${r.reqs}</td>
             <td>${r.schools.size}</td><td>${r.trainers.size}</td>
             <td>${r.done}</td><td>${r.postponed}</td><td>${r.cancelled}</td>
+            <td style="text-align:right;">${venuesSummary(r.items)}</td>
           </tr>`).join('')}
         </tbody><tfoot><tr style="font-weight:700;background:var(--sand-100);">
           <td style="text-align:right;">الإجمالي</td><td></td>
           <td>${d.tot.n}</td><td>${d.tot.days}</td><td>${d.tot.hours}</td><td>${d.tot.people}</td>
           <td>${d.tot.reqs}</td><td>${d.tot.schools}</td><td>${d.tot.trainers}</td>
           <td>${d.tot.done}</td><td>${d.tot.postponed}</td><td>${d.tot.cancelled}</td>
+          <td style="text-align:right;">${venuesSummary(d.list)}</td>
         </tr></tfoot></table>`;
       enhanceReportTable(el);
     }
@@ -7961,7 +8169,7 @@ function renderReportsPage(c){
         kpis:[{v:d.tot.n,l:'📋 الفعاليات'},{v:d.tot.hours,l:'⏱ الساعات'},
               {v:d.tot.people,l:'👥 المستهدفون'},{v:d.tot.reqs,l:'📄 الطلبات الإدارية'}],
         headers:HDR,
-        rows: rowsOf(d).map(r=>r.map(v=>escapeHtml(String(v))))
+        rows: d.rows.map((r,i)=>rowsOf(d)[i].slice(0,11).map(v=>escapeHtml(String(v))).concat([venuesSummary(r.items)]))
       }), true, 'A4');
     }
     document.getElementById('ps_print').onclick = printIt;
@@ -8173,7 +8381,7 @@ function renderReportsPage(c){
       <div id="fs_result" style="margin-top:14px;"></div>
     </div>`;
 
-    const COLS = ['مجال المبادرة','الأيام','الساعات','الفعاليات','المنفّذون','المستهدفون','الأماكن'];
+    const COLS = ['مجال المبادرة','الأيام','الساعات','الفعاليات','المنفّذون','المستهدفون','الأماكن','أماكن التنفيذ الفعلية'];
     function gen(){
       const from=document.getElementById('fs_from').value, to=document.getElementById('fs_to').value;
       const wDone=document.getElementById('fs_done').checked;
@@ -8199,6 +8407,7 @@ function renderReportsPage(c){
           trainers: new Set(list.flatMap(o=>o.trainerIds||[])).size,
           people: list.reduce((s,o)=>s+(Number(o.participantsCount)||0),0),
           places: new Set(list.map(o=>o.schoolId).filter(Boolean)).size,
+          venues: venuesSummary(list), venuesTxt: venuesSummaryText(list),
         };
       }).filter(r=>r.events>0).sort((a,b)=>b.events-a.events);
       const tot = {
@@ -8209,15 +8418,18 @@ function renderReportsPage(c){
         trainers: new Set(base.flatMap(o=>o.trainerIds||[])).size,
         people: rows.reduce((s,r)=>s+r.people,0),
         places: new Set(base.map(o=>o.schoolId).filter(Boolean)).size,
+        venues: venuesSummary(base), venuesTxt: venuesSummaryText(base),
       };
       return {rows, tot, from, to};
     }
-    const asArr = r => [r.name, r.days, r.hours, r.events, r.trainers, r.people, r.places];
+    const asArr = r => [r.name, r.days, r.hours, r.events, r.trainers, r.people, r.places, r.venuesTxt];
+    /* نسخة HTML: آخر عمود شارات صفراء */
+    const asHtml = r => [escapeHtml(String(r.name)), r.days, r.hours, r.events, r.trainers, r.people, r.places, r.venues].map(String);
     function tableHtml(rows, tot){
       if(!rows.length) return `<div class="empty-state">لا توجد فعاليات ضمن هذه الفترة</div>`;
       return `<table><thead><tr>${COLS.map(c=>`<th>${escapeHtml(c)}</th>`).join('')}</tr></thead><tbody>
-        ${rows.map(r=>`<tr>${asArr(r).map((v,i)=>`<td${i===0?' style="text-align:right;font-weight:700;"':''}>${escapeHtml(String(v))}</td>`).join('')}</tr>`).join('')}
-        <tr style="background:#FAF9F7;font-weight:700;">${asArr(tot).map((v,i)=>`<td${i===0?' style="text-align:right;"':''}>${escapeHtml(String(v))}</td>`).join('')}</tr>
+        ${rows.map(r=>`<tr>${asHtml(r).map((v,i)=>`<td${i===0?' style="text-align:right;font-weight:700;"':''}>${v}</td>`).join('')}</tr>`).join('')}
+        <tr style="background:#FAF9F7;font-weight:700;">${asHtml(tot).map((v,i)=>`<td${i===0?' style="text-align:right;"':''}>${v}</td>`).join('')}</tr>
       </tbody></table>`;
     }
     document.getElementById('fs_go').onclick=()=>{
@@ -8236,8 +8448,8 @@ function renderReportsPage(c){
           {v:tot.hours,l:'⏱️ الساعات'}, {v:tot.people,l:'👥 المستهدفون'},
         ],
         headers: COLS,
-        rows: rows.map(r=>asArr(r).map(v=>escapeHtml(String(v))))
-              .concat([asArr(tot).map(v=>`<b>${escapeHtml(String(v))}</b>`)])
+        rows: rows.map(r=>asHtml(r))
+              .concat([asHtml(tot).map((v,i)=>i===7?v:`<b>${v}</b>`)])
       }), true, 'A4');
     }
     document.getElementById('fs_print').onclick=printIt;
@@ -8450,7 +8662,7 @@ function renderReportsPage(c){
     const headers = ['أمر التكليف','عنوان الفعالية','التاريخ (من — إلى)','الوقت','المكان','مقدم المبادرة','رقم الهاتف','الإنجاز'];
     function rowOf(o){
       const school = state.schools.find(s=>s.id===o.schoolId);
-      return [o.serial, escapeHtml(o.title), dateRangeStr(o), escapeHtml(fullTimeRange(o.timeFrom,o.timeTo)), school?escapeHtml(school.name):'', escapeHtml(trainerNames(o))||'—', escapeHtml(trainerPhones(o)), o.completionStatus||'لم تنجز'];
+      return [o.serial, escapeHtml(o.title), dateRangeStr(o), escapeHtml(fullTimeRange(o.timeFrom,o.timeTo)), (school?escapeHtml(school.name):'') + venueBadge(o), escapeHtml(trainerNames(o))||'—', escapeHtml(trainerPhones(o)), o.completionStatus||'لم تنجز'];
     }
     function tableOf(list){
       return `<table><thead><tr>${headers.map(h=>`<th>${escapeHtml(h)}</th>`).join('')}</tr></thead><tbody>
@@ -8696,7 +8908,7 @@ function renderReportsPage(c){
     /* اسم المشرف بجوار اسم المدرسة في العنوان — فاستُبعد عمود المكان/الهاتف */
     const columns = ['#','الفعالية','التاريخ','الوقت','مقدم الفعالية'];
     function rowOf(o){
-      return [o.serial, o.title, repPeriodCell(o), fullTimeRange(o.timeFrom,o.timeTo), repTrainers(o)];
+      return [o.serial, titleWithVenue(o), repPeriodCell(o), fullTimeRange(o.timeFrom,o.timeTo), repTrainers(o)];
     }
     /* مشرفو المدرسة المرتبطون بفعاليات الفترة */
     function supsOf(school, list){
@@ -9807,6 +10019,7 @@ function renderSettingsPage(c){
 
   <div class="card"><h2>مجالات المبادرة <button class="plus-btn" onclick="quickAddField()">+</button></h2>${simpleListTable(state.fields, 'fields')}</div>
   <div class="card"><h2>مسارات المبادرة <button class="plus-btn" onclick="quickAddPType()">+</button></h2>${simpleListTable(state.programTypes, 'programTypes')}</div>
+  <div class="card"><h2>أماكن التنفيذ الفعلية <button class="plus-btn" onclick="quickAddVenue()">+</button></h2>${simpleListTable(state.venues||[], 'venues')}</div>
   <div class="card"><h2>الطلبات الإدارية <button class="plus-btn" onclick="quickAddAdminRequest()">+</button></h2>${simpleListTable(state.adminRequestsList, 'adminRequestsList')}</div>
 
   <div class="card"><h2>مقدمو الفعاليات
@@ -9850,6 +10063,7 @@ function renderSettingsPage(c){
         <button class="icon-btn" onclick="quickAddSchoolSettings()" title="إضافة مدرسة" aria-label="إضافة مدرسة" style="width:28px;height:28px;padding:0;">${icon('plus',14)}</button>
         <button class="icon-btn" onclick="dedupeAll()" title="حذف المكرر (مدارس ومشرفين وأرقام وبريد)" aria-label="حذف المكرر" style="width:28px;height:28px;padding:0;">${icon('copy',14)}</button>
         <button class="icon-btn" onclick="mergeSameSchools()" title="دمج المدارس المتطابقة بالاسم" aria-label="دمج المدارس المتطابقة" style="width:28px;height:28px;padding:0;">${icon('layers',14)}</button>
+        <button class="icon-btn" onclick="mergeSelectedSchools()" title="دمج المدارس المحددة تحت اسم واحد" aria-label="دمج المحدد" style="width:auto;height:28px;padding:0 8px;font-size:11.5px;gap:4px;display:inline-flex;align-items:center;">${icon('checkCircle',13)} دمج المحدد</button>
         <button class="icon-btn danger" onclick="bulkDeleteSchoolRows()" title="حذف المحدد" aria-label="حذف المحدد" style="width:28px;height:28px;padding:0;">${icon('trash',14)}</button>
       </span></h2>
     <div class="tbl-scroll">
@@ -10076,7 +10290,7 @@ function editSchool(id){
     {name:'name', label:'اسم المدرسة / الجهة', required:true},
     {name:'level', label:'المرحلة الدراسية', type:'select', options:LOCATION_TYPES.map(t=>({value:t,label:t}))},
     {name:'email', label:'البريد الإلكتروني للمدرسة (اختياري)'},
-  ], async v=>{ s.name=v.name; s.level=v.level; s.email=v.email||''; await saveState(); toast('تم الحفظ'); render(); });
+  ], async v=>{ s.name=v.name; s.level=v.level; s.email=v.email||''; await saveState(); toast('تم الحفظ'); renderKeepForm(); });
   setTimeout(()=>{ const f=document.getElementById('mf_name'); if(f) f.value=s.name; const l=document.getElementById('mf_level'); if(l) l.value=s.level; const em=document.getElementById('mf_email'); if(em) em.value=s.email||''; },0);
 }
 
@@ -10133,6 +10347,16 @@ async function importSchoolsExcel(file){
 function stripBidi(v){
   return (v===null||v===undefined) ? v : String(v).replace(/[\u2066-\u2069\u200E\u200F]/g,'');
 }
+/* يحوّل خلية HTML إلى نص نظيف قبل كتابتها في Excel */
+function xlText(v){
+  if(typeof v!=='string' || v.indexOf('<')===-1) return v;
+  return v.replace(/<br\s*\/?>/gi,' ')
+    .replace(/مكان التنفيذ:/g,'— مكان التنفيذ:')
+    .replace(/<[^>]+>/g,' ')
+    .replace(/&nbsp;/g,' ').replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>')
+    .replace(/&quot;/g,'"').replace(/&#39;/g,"'")
+    .replace(/\s+/g,' ').trim();
+}
 function exportToExcel(filename, headers, rows, titleAr){
   const now = new Date();
   const dateStr = fmtDate(todayStr());
@@ -10140,7 +10364,7 @@ function exportToExcel(filename, headers, rows, titleAr){
   const aoa = [];
   if(titleAr){ aoa.push([titleAr]); aoa.push([stripBidi(`تاريخ التصدير: ${dateStr}    وقت التصدير: ${timeStr}`)]); aoa.push([]); }
   aoa.push(headers.map(stripBidi));
-  rows.forEach(r=>aoa.push(r.map(stripBidi)));
+  rows.forEach(r=>aoa.push(r.map(v=>stripBidi(xlText(v)))));
   const ws = XLSX.utils.aoa_to_sheet(aoa);
   ws['!cols'] = headers.map(()=>({wch:18}));
   const wb = XLSX.utils.book_new();
@@ -10156,7 +10380,7 @@ function exportToExcelMultiSheet(filename, sheets, titleAr){
     const aoa = [];
     if(titleAr){ aoa.push([titleAr]); aoa.push([stripBidi(`تاريخ التصدير: ${dateStr}    وقت التصدير: ${timeStr}`)]); aoa.push([]); }
     aoa.push(s.headers.map(stripBidi));
-    s.rows.forEach(r=>aoa.push(r.map(stripBidi)));
+    s.rows.forEach(r=>aoa.push(r.map(v=>stripBidi(xlText(v)))));
     const ws = XLSX.utils.aoa_to_sheet(aoa);
     ws['!cols'] = s.headers.map(()=>({wch:18}));
     XLSX.utils.book_append_sheet(wb, ws, (s.name||'بيانات').slice(0,31));
@@ -10179,7 +10403,7 @@ function editSupervisor(schoolId, svId){
   ], async v=>{
     if(!v.name || !v.name.trim()){ toast('أدخل اسم المشرف'); return false; }
     sv.name = v.name.trim(); sv.phone = (v.phone||'').trim(); sv.email = (v.email||'').trim();
-    await saveState(); toast('تم حفظ بيانات المشرف'); render();
+    await saveState(); toast('تم حفظ بيانات المشرف'); renderKeepForm();
   });
   setTimeout(()=>{
     const n=document.getElementById('mf_name'), p=document.getElementById('mf_phone'), e=document.getElementById('mf_email');
@@ -10234,71 +10458,112 @@ async function bulkDeleteSchoolRows(){
 }
 /* حذف المكرر: مدارس، مشرفون، أرقام، بريد */
 /* دمج المدارس التي تحمل الاسم نفسه مع مشرفيها — بلا تكرار */
+/* ══════════ دمج المدارس ══════════ */
+const _mzNz = s => String(s||'').replace(/[\u064B-\u0652\u0640]/g,'')
+  .replace(/[أإآا]/g,'ا').replace(/[ىي]/g,'ي').replace(/ة/g,'ه')
+  .replace(/[\-–—_.,،()]/g,' ').replace(/\s+/g,' ').trim().toLowerCase();
+const _mzDigits = s => String(s||'').replace(/\D/g,'');
+/* مفتاح المطابقة: الاسم بعد إزالة البادئات العامة (مدرسة / المدرسة / مدارس)
+   «مدرسة خالد بن أحمد» = «خالد بن أحمد»، أما «خالد بن أحمد الابتدائية» فتبقى مختلفة */
+function schoolKey(name){
+  let k = _mzNz(name);
+  k = k.replace(/^(المدرسه|مدرسه|مدارس|م)\s+/, '');
+  return k.trim();
+}
+/* يدمج سجلات مدارس في سجل واحد: الفعاليات والمشرفون والبريد */
+function mergeSchoolsInto(keep, dups, finalName){
+  const st = {schools:0, sups:0, orders:0};
+  keep.supervisors = keep.supervisors || [];
+  const same = (a,b)=>
+    (_mzNz(a.name) && _mzNz(a.name)===_mzNz(b.name)) ||
+    (_mzDigits(a.phone) && _mzDigits(a.phone)===_mzDigits(b.phone)) ||
+    (_mzNz(a.email) && _mzNz(a.email)===_mzNz(b.email));
+  dups.filter(d=>d.id!==keep.id).forEach(dup=>{
+    (dup.supervisors||[]).forEach(sv=>{
+      const twin = keep.supervisors.find(k=>same(k,sv));
+      if(twin){
+        /* نكمل الناقص من بيانات المشرف المكرر ثم نحوّل فعالياته */
+        if(!twin.phone && sv.phone) twin.phone = sv.phone;
+        if(!twin.email && sv.email) twin.email = sv.email;
+        (state.orders||[]).forEach(o=>{ if(o.supervisorId===sv.id) o.supervisorId = twin.id; });
+        st.sups++;
+      } else keep.supervisors.push(sv);
+    });
+    (state.orders||[]).forEach(o=>{ if(o.schoolId===dup.id){ o.schoolId = keep.id; st.orders++; } });
+    if(!keep.level || keep.level==='غير ذلك'){ if(dup.level && dup.level!=='غير ذلك') keep.level = dup.level; }
+    if(!keep.email && dup.email) keep.email = dup.email;
+    state.schools = state.schools.filter(x=>x.id!==dup.id);
+    st.schools++;
+  });
+  if(finalName && finalName.trim()) keep.name = finalName.trim();
+  return st;
+}
+/* الاسم المقترح للمجموعة: الأكثر اكتمالًا (الأطول) */
+function bestSchoolName(g){
+  return g.map(s=>s.name||'').sort((a,b)=>b.length-a.length)[0] || '';
+}
+/* دمج تلقائي للمدارس المتطابقة بالاسم */
 async function mergeSameSchools(){
-  const nz = s => String(s||'').replace(/[\u064B-\u0652\u0640]/g,'')
-    .replace(/[أإآا]/g,'ا').replace(/[ىي]/g,'ي').replace(/ة/g,'ه')
-    .replace(/\s+/g,' ').trim().toLowerCase();
-  const digits = s => String(s||'').replace(/\D/g,'');
-  /* تجميع المدارس حسب الاسم المطبَّع */
   const groups = new Map();
   (state.schools||[]).forEach(s=>{
-    const k = nz(s.name);
+    const k = schoolKey(s.name); if(!k) return;
     if(!groups.has(k)) groups.set(k, []);
     groups.get(k).push(s);
   });
   const dupGroups = Array.from(groups.values()).filter(g=>g.length>1);
   if(!dupGroups.length){ toast('لا توجد مدارس متطابقة بالاسم'); return; }
-  /* معاينة قبل الدمج */
   const preview = dupGroups.map(g=>{
     const svN = g.reduce((s,x)=>s+((x.supervisors||[]).length), 0);
     const evN = g.reduce((s,x)=>s+(state.orders||[]).filter(o=>o.schoolId===x.id).length, 0);
-    return `• ${g[0].name}\n   ${g.length} سجلات · ${svN} مشرفًا · ${evN} فعالية`;
-  }).join('\n');
+    return `• ${g.map(x=>x.name).join('  +  ')}\n   ← تُدمج باسم: ${bestSchoolName(g)}\n   ${svN} مشرفًا · ${evN} فعالية`;
+  }).join('\n\n');
   if(!confirm(`سيتم دمج ${dupGroups.length} مجموعة مدارس متطابقة:\n\n${preview}\n\n`
-    + `تُنقل كل الفعاليات والمشرفين إلى سجل واحد، وتُحذف المشرفون المكررون (بالاسم أو الجوال أو البريد).\n\nمتابعة؟`)) return;
-  let mergedSchools = 0, mergedSups = 0, movedOrders = 0;
+    + `تُنقل الفعاليات والمشرفون والبريد إلى سجل واحد، ويُحذف المشرفون المكررون.\n\nمتابعة؟`)) return;
+  const tot = {schools:0, sups:0, orders:0};
   dupGroups.forEach(g=>{
-    /* نُبقي السجل الأكثر اكتمالًا: الأكثر مشرفين ثم الأقدم */
     const keep = g.slice().sort((a,b)=>((b.supervisors||[]).length - (a.supervisors||[]).length))[0];
-    keep.supervisors = keep.supervisors || [];
-    g.filter(s=>s.id!==keep.id).forEach(dup=>{
-      /* نقل المشرفين غير المكررين */
-      (dup.supervisors||[]).forEach(sv=>{
-        const exists = keep.supervisors.some(k=>
-          (nz(k.name) && nz(k.name)===nz(sv.name)) ||
-          (digits(k.phone) && digits(k.phone)===digits(sv.phone)) ||
-          (nz(k.email) && nz(k.email)===nz(sv.email)));
-        if(exists){
-          /* نحوّل فعاليات هذا المشرف إلى نظيره المُبقى */
-          const twin = keep.supervisors.find(k=>
-            (nz(k.name) && nz(k.name)===nz(sv.name)) ||
-            (digits(k.phone) && digits(k.phone)===digits(sv.phone)) ||
-            (nz(k.email) && nz(k.email)===nz(sv.email)));
-          if(twin) (state.orders||[]).forEach(o=>{ if(o.supervisorId===sv.id) o.supervisorId = twin.id; });
-          mergedSups++;
-        } else keep.supervisors.push(sv);
-      });
-      /* نقل الفعاليات */
-      (state.orders||[]).forEach(o=>{ if(o.schoolId===dup.id){ o.schoolId = keep.id; movedOrders++; } });
-      /* توحيد البيانات الناقصة */
-      if(!keep.level && dup.level) keep.level = dup.level;
-      if(!keep.email && dup.email) keep.email = dup.email;
-      state.schools = state.schools.filter(x=>x.id!==dup.id);
-      mergedSchools++;
-    });
-    /* إزالة أي تكرار متبقٍ داخل قائمة المشرفين */
-    const seenN=new Set(), seenP=new Set(), seenE=new Set(), out=[];
-    keep.supervisors.forEach(sv=>{
-      const a=nz(sv.name), b=digits(sv.phone), c=nz(sv.email);
-      if((a&&seenN.has(a))||(b&&seenP.has(b))||(c&&seenE.has(c))){ mergedSups++; return; }
-      if(a)seenN.add(a); if(b)seenP.add(b); if(c)seenE.add(c);
-      out.push(sv);
-    });
-    keep.supervisors = out;
+    const r = mergeSchoolsInto(keep, g, bestSchoolName(g));
+    tot.schools+=r.schools; tot.sups+=r.sups; tot.orders+=r.orders;
   });
   await saveState();
-  toast(`دُمجت ${mergedSchools} مدرسة · ${mergedSups} مشرفًا مكررًا · نُقلت ${movedOrders} فعالية`);
+  toast(`دُمجت ${tot.schools} مدرسة · ${tot.sups} مشرفًا مكررًا · نُقلت ${tot.orders} فعالية`);
   render();
+}
+/* دمج المدارس المحددة يدويًا تحت اسم يختاره المستخدم */
+function mergeSelectedSchools(){
+  const ids = [...new Set(Array.from(document.querySelectorAll('#schoolsTable .schRow:checked')).map(c=>c.dataset.school))];
+  const picked = ids.map(id=>state.schools.find(s=>s.id===id)).filter(Boolean);
+  if(picked.length < 2){ toast('حدد مدرستين أو أكثر لدمجها'); return; }
+  const def = bestSchoolName(picked);
+  openModal(`دمج ${picked.length} مدارس تحت اسم واحد`, [
+    {name:'pick', label:'اختر الاسم النهائي', type:'select',
+     options: picked.map(s=>({value:s.id, label:s.name})).concat([{value:'__new', label:'— اسم آخر (أكتبه أدناه) —'}])},
+    {name:'newName', label:'الاسم الجديد (عند اختيار «اسم آخر»)'},
+  ], async v=>{
+    let finalName = '';
+    if(v.pick==='__new'){
+      finalName = (v.newName||'').trim();
+      if(!finalName){ toast('اكتب الاسم الجديد'); return false; }
+    } else {
+      const s = picked.find(x=>x.id===v.pick); finalName = s ? s.name : def;
+    }
+    /* السجل المُبقى: الذي اخترت اسمه، وإلا الأكثر مشرفين */
+    const keep = picked.find(x=>x.id===v.pick)
+      || picked.slice().sort((a,b)=>((b.supervisors||[]).length - (a.supervisors||[]).length))[0];
+    const svN = picked.reduce((s,x)=>s+((x.supervisors||[]).length), 0);
+    const evN = picked.reduce((s,x)=>s+(state.orders||[]).filter(o=>o.schoolId===x.id).length, 0);
+    if(!confirm(`سيتم دمج:\n\n${picked.map(s=>'• '+s.name).join('\n')}\n\nتحت اسم: ${finalName}\n\n`
+      + `${svN} مشرفًا · ${evN} فعالية — تُحذف المشرفون المكررون ويُحتفظ بالبريد.\n\nمتابعة؟`)) return false;
+    const r = mergeSchoolsInto(keep, picked, finalName);
+    await saveState();
+    toast(`دُمجت ${r.schools+1} مدارس باسم «${finalName}» · ${r.sups} مشرفًا مكررًا · نُقلت ${r.orders} فعالية`);
+    render();
+  });
+  setTimeout(()=>{
+    const p = document.getElementById('mf_pick');
+    const best = picked.find(s=>s.name===def);
+    if(p && best) p.value = best.id;
+  },0);
 }
 async function dedupeAll(){
   const norm = s => (s||'').replace(/\s+/g,' ').trim().toLowerCase();
