@@ -3996,6 +3996,7 @@ function renderSchedulePage(c){
     ${list.length ? `<div class="tbl-scroll"><table style="font-size:12.5px;"><thead><tr>
       <th style="width:46px;">#</th><th style="text-align:right;">الفعالية</th><th>التاريخ</th>
       <th>الوقت</th><th>الأيام</th><th>المكان</th><th>المقدّمون</th><th>الحالة</th>
+      <th style="width:52px;">تعديل</th>
     </tr></thead><tbody>
       ${list.map(o=>{
         const sc = state.schools.find(x=>x.id===o.schoolId);
@@ -4009,6 +4010,8 @@ function renderSchedulePage(c){
           <td style="text-align:right;">${sc?escapeHtml(sc.name):'—'}</td>
           <td style="text-align:right;">${tn.length?escapeHtml(tn.join('، ')):'—'}</td>
           <td>${doneBadge(o.completionStatus)}</td>
+          <td class="no-view"><button class="icon-btn" data-edit="${o.id}" title="فتح الطلب وتعديله"
+            aria-label="تعديل" style="width:28px;height:28px;padding:0;">${icon('edit',14)}</button></td>
         </tr>`;
       }).join('')}
     </tbody></table></div>` : `<div class="empty-state">لا توجد فعاليات في هذه الفترة</div>`}
@@ -4209,7 +4212,16 @@ function renderSchedulePage(c){
     if(window.__schedQ) schedSearch();
   }
 
-  c.querySelectorAll('[data-view]').forEach(b=>{ b.onclick = ()=>viewOrderReadOnly(b.dataset.view); });
+  c.querySelectorAll('[data-edit]').forEach(b=>{
+    b.onclick = e=>{ e.stopPropagation(); editOrder(b.dataset.edit); };
+  });
+  c.querySelectorAll('[data-view]').forEach(b=>{
+    b.onclick = e=>{
+      /* النقر على خانة التعديل لا يفتح نافذة العرض */
+      if(e.target.closest('.no-view')) return;
+      viewOrderReadOnly(b.dataset.view);
+    };
+  });
   const sortPick = cb => {
     openModal('فرز التقرير', [{name:'by', label:'الفرز حسب', type:'select', options:[
       {value:'date', label:'تاريخ المبادرة (الأحدث أولًا)'},
@@ -6999,10 +7011,19 @@ function viewOrderReadOnly(id){
   ];
   if(o.requesterNote) rows.push(['fileText','ملاحظة الجهة الطالبة', o.requesterNote]);
   if(o.adminNote)     rows.push(['clipboard','ملاحظة الإدارة', o.adminNote]);
+  /* التعديل متاح للإدارة والمستخدم، لا لمقدّم الفعالية */
+  const canEdit = currentRole === 'admin' || currentRole === 'user';
   const body = `
     <div style="display:flex;align-items:center;gap:9px;margin-bottom:12px;flex-wrap:wrap;">
       <span class="badge">${o.serial}</span>${doneBadge(o.completionStatus)}${stateBadge(o.status)}
-      <span class="helper" style="margin-inline-start:auto;">${icon('shield',13)} عرض فقط</span>
+      <span style="margin-inline-start:auto;display:inline-flex;gap:6px;align-items:center;">
+        ${canEdit ? `<button class="btn btn-primary btn-sm" id="roEdit"
+            title="فتح الطلب وتعديله" style="min-height:30px;font-size:12px;">
+            ${icon('edit',14)} تعديل الطلب</button>
+          <button class="icon-btn" id="roPrint" title="طباعة أمر التكليف" aria-label="طباعة"
+            style="width:30px;height:30px;padding:0;">${icon('printer',14)}</button>`
+          : `<span class="helper">${icon('shield',13)} عرض فقط</span>`}
+      </span>
     </div>
     <div style="max-height:60vh;overflow:auto;">
       ${rows.map(r=>`<div class="ro-row">
@@ -7011,7 +7032,16 @@ function viewOrderReadOnly(id){
         <span class="ro-v">${escapeHtml(String(r[2]))}</span>
       </div>`).join('')}
     </div>`;
-  showInfoModal(`تفاصيل الفعالية`, body, box=>{ box.style.maxWidth='560px'; });
+  showInfoModal(`تفاصيل الفعالية`, body, box=>{
+    box.style.maxWidth='560px';
+    const eb = box.querySelector('#roEdit');
+    if(eb) eb.onclick = ()=>{ closeModal(); editOrder(o.id); };
+    const pb = box.querySelector('#roPrint');
+    if(pb) pb.onclick = async ()=>{
+      closeModal();
+      doPrintDoc(await buildOrderPrintDoc(o, {}, 'نسخة الجهة الطالبة'), false, 'A4');
+    };
+  });
 }
 function editOrder(id){ editingOrderId=id; orderSubTab='new'; currentPage='order'; render(); }
 async function deleteOrder(id){
